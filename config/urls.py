@@ -15,9 +15,22 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
+from django.contrib.auth.views import LogoutView
+from django.urls import path, include
+from .views import CustomLoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # ログイン画面のURLパターン
+    # ルートURL('')にアクセスすると、LoginViewが呼び出される
+    # 'login.html'というテンプレートが表示される
+    path('accounts/login/', CustomLoginView.as_view(), name='login'),
+
+    # ログアウトのURLパターン
+    # 'logout/'というURLにアクセスすると、LogoutViewが呼び出される
+    path('accounts/logout/', LogoutView.as_view(), name='logout'),
+
+    # 会議室メインページ
     path('', include('reservations.urls')),
 ]
