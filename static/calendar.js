@@ -1,20 +1,25 @@
+/* ===== ナビゲーションメニュー ===== */
+function toggleNavMenu(e) {
+    e.stopPropagation();
+    document.getElementById('navMenu').classList.toggle('open');
+}
+document.addEventListener('click', function () {
+    document.getElementById('navMenu').classList.remove('open');
+});
+
+/* ===== 予約詳細モーダル ===== */
 function showReservationModal(el) {
-    // data-* 属性からデータを取り出す
-    const id          = el.dataset.reservationId;
-    const title       = el.dataset.title;
-    const reservedBy  = el.dataset.reservedBy;
-    const start       = el.dataset.start;
-    const end         = el.dataset.end;
+    document.getElementById('modal-title').textContent       = el.dataset.title;
+    document.getElementById('modal-reserved-by').textContent = el.dataset.reservedBy;
+    document.getElementById('modal-time').textContent        = el.dataset.start + ' 〜 ' + el.dataset.end;
+    document.getElementById('modal-detail-link').href        = '/reservations/' + el.dataset.reservationId + '/';
+    document.getElementById('reservationModal').classList.add('open');
+}
 
-    // モーダルの中身を書き換える
-    document.getElementById('modal-title').textContent       = title;
-    document.getElementById('modal-reserved-by').textContent = reservedBy;
-    document.getElementById('modal-time').textContent        = start + ' 〜 ' + end;
+function closeModal() {
+    document.getElementById('reservationModal').classList.remove('open');
+}
 
-    // 「詳細を見る」リンクのURLを動的にセット
-    document.getElementById('modal-detail-link').href = '/reservations/' + id + '/';
-
-    // Bootstrap 5 のモーダルを表示する
-    const modal = new bootstrap.Modal(document.getElementById('reservationModal'));
-    modal.show();
+function closeModalOnOverlay(e) {
+    if (e.target === document.getElementById('reservationModal')) closeModal();
 }
