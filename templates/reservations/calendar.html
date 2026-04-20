@@ -56,3 +56,57 @@
     </tbody>
   </table>
 </div>
+
+<!-- F-05: 予約詳細モーダル（Bootstrap 5 Modal）-->
+<div class="modal fade" id="reservationModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">予約の詳細</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <dl class="row mb-0">
+          <dt class="col-4">件名</dt>
+          <dd class="col-8" id="modal-title"></dd>
+          <dt class="col-4">予約者</dt>
+          <dd class="col-8" id="modal-reserved-by"></dd>
+          <dt class="col-4">時間</dt>
+          <dd class="col-8" id="modal-time"></dd>
+        </dl>
+      </div>
+      <div class="modal-footer">
+        <a id="modal-detail-link" href="#" class="btn btn-primary btn-sm">
+          詳細を見る
+        </a>
+        <button type="button" class="btn btn-secondary btn-sm"
+                data-bs-dismiss="modal">閉じる</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+function showReservationModal(el) {
+    // data-* 属性からデータを取り出す
+    const id          = el.dataset.reservationId;
+    const title       = el.dataset.title;
+    const reservedBy  = el.dataset.reservedBy;
+    const start       = el.dataset.start;
+    const end         = el.dataset.end;
+
+    // モーダルの中身を書き換える
+    document.getElementById('modal-title').textContent       = title;
+    document.getElementById('modal-reserved-by').textContent = reservedBy;
+    document.getElementById('modal-time').textContent        = start + ' 〜 ' + end;
+
+    // 「詳細を見る」リンクのURLを動的にセット
+    document.getElementById('modal-detail-link').href = '/reservations/' + id + '/';
+
+    // Bootstrap 5 のモーダルを表示する
+    const modal = new bootstrap.Modal(document.getElementById('reservationModal'));
+    modal.show();
+}
+</script>
+{% endblock %}
