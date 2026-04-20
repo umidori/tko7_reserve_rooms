@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <a href="?date={{ prev_date|date:'Y-m-d' }}" class="btn btn-outline-secondary">
+    ← 前日
+  </a>
+  <h5 class="mb-0">{{ target_date|date:"Y年n月j日（D）" }}</h5>
+  <a href="?date={{ next_date|date:'Y-m-d' }}" class="btn btn-outline-secondary">
+    翌日 →
+  </a>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-bordered table-sm">
+    <thead class="table-dark">
+      <tr>
+        <th style="width:80px">時刻</th>
+        {% for room in rooms %}
+          <th>{{ room.name }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in grid %}
+      <tr>
+        <td class="text-muted small text-nowrap">
+          {{ row.slot|time:"H:i" }}
+        </td>
+        {% for cell in row.cells %}
+        <td style="min-width:120px; height:40px; padding:2px;">
+          {% if cell.reservation %}
+            {# F-05：予約コマ（クリック可能）#}
+            <div class="bg-primary text-white rounded p-1 small"
+                 style="cursor:pointer; height:100%;"
+                 data-reservation-id="{{ cell.reservation.id }}"
+                 data-title="{{ cell.reservation.purpose }}"
+                 data-reserved-by="{{ cell.reservation.reserved_by }}"
+                 data-start="{{ cell.reservation.start_time|time:'H:i' }}"
+                 data-end="{{ cell.reservation.end_time|time:'H:i' }}"
+                 onclick="showReservationModal(this)">
+              {{ cell.reservation.purpose|truncatechars:15 }}
+            </div>
+          {% else %}
+            {# 空きコマ：クリックで予約作成へ #}
+            <a href="{% url 'reservation_create' %}?room={{ cell.room.id }}&date={{ target_date|date:'Y-m-d' }}&start={{ row.slot|time:'H:i' }}"
+               class="d-block text-center text-success small"
+               style="height:100%; line-height:36px;">
+              ＋
+            </a>
+          {% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
