@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'reservations',
+    "accounts",
 ]
 
 MIDDLEWARE = [
@@ -123,3 +124,5 @@ STATICFILES_DIRS = [BASE_DIR / "static",]
 LOGIN_URL = '/accounts/login/'
 # ログイン成功後のリダイレクト先
 LOGIN_REDIRECT_URL = '/'
+
+AUTH_USER_MODEL = "accounts.User"
