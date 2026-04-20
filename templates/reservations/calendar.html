@@ -1,15 +1,39 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'calendar.css' %}">
+{% endblock %}
+
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <a href="?date={{ prev_date|date:'Y-m-d' }}" class="btn btn-outline-secondary">
-    ← 前日
-  </a>
-  <h5 class="mb-0">{{ target_date|date:"Y年n月j日（D）" }}</h5>
-  <a href="?date={{ next_date|date:'Y-m-d' }}" class="btn btn-outline-secondary">
-    翌日 →
-  </a>
+<div class="calendar-nav d-flex align-items-center justify-content-between mb-3">
+  <div class="d-flex gap-2">
+    <a href="?date={{ today|date:'Y-m-d' }}&filter={{ filter_mode }}"
+       class="btn btn-sm btn-outline-secondary">今日</a>
+    <a href="?date={{ prev_date|date:'Y-m-d' }}&filter={{ filter_mode }}"
+       class="btn btn-sm btn-outline-secondary">← 前日</a>
+    <a href="?date={{ next_date|date:'Y-m-d' }}&filter={{ filter_mode }}"
+       class="btn btn-sm btn-outline-secondary">翌日 →</a>
+  </div>
+  <h5 class="mb-0 fw-bold">{{ target_date|date:"Y年n月j日（D）" }}</h5>
+  <div style="width: 160px;"></div>  {# 右側の余白で中央揃えを維持 #}
 </div>
+
+<ul class="nav nav-tabs mb-0">
+  <li class="nav-item">
+    <a class="nav-link {% if filter_mode == 'dept' %}active{% endif %}"
+       href="?date={{ target_date|date:'Y-m-d' }}&filter=dept">
+      所属の会議室
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if filter_mode == 'all' %}active{% endif %}"
+       href="?date={{ target_date|date:'Y-m-d' }}&filter=all">
+      全会議室
+    </a>
+  </li>
+</ul>
 
 <div class="table-responsive">
   <table class="table table-bordered table-sm">
@@ -23,7 +47,7 @@
     </thead>
     <tbody>
       {% for row in grid %}
-      <tr>
+      <tr class="{% if row.slot.hour < 8 or row.slot.hour >= 22 %}off-hours{% elif row.slot.hour >= 8 and row.slot.hour < 21 %}business-hours{% endif %}">
         <td class="text-muted small text-nowrap">
           {{ row.slot|time:"H:i" }}
         </td>
@@ -44,9 +68,8 @@
           {% else %}
             {# 空きコマ：クリックで予約作成へ #}
             <a href="#"
-               class="d-block text-center text-success small"
-               style="height:100%; line-height:36px;">
-              ＋
+               class="empty-slot text-center">
+              <span class="plus-icon">＋予約</span>
             </a>
           {% endif %}
         </td>

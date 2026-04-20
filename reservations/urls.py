@@ -11,7 +11,7 @@ from .views import (
 )
 
 urlpatterns = [
-    path('', login_required(home), name='home'),
+    path('', CalendarView.as_view(), name='home'),
 
     # F-04：日次カレンダー
     # /calendar/?date=YYYY-MM-DD でアクセスする

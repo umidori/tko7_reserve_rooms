@@ -1,0 +1,78 @@
+/* ① 業務時間外の行を薄くする */
+.off-hours td {
+  background-color: #f8f9fa;
+  opacity: 0.6;
+}
+
+/* ② 業務時間（8:00〜21:00）の行を白地・強調 */
+.business-hours td {
+  background-color: #ffffff;
+}
+
+/* ③ 時刻カラムの固定幅 */
+.time-col {
+  width: 64px;
+  min-width: 64px;
+  font-size: 0.75rem;
+  color: #6c757d;
+  white-space: nowrap;
+}
+
+/* ④ 会議室カラムの最小幅（全会議室表示時の横スクロール対応） */
+.room-col {
+  min-width: 140px;
+}
+
+/* ⑤ 予約ブロック */
+.reservation-block {
+  background-color: #0d6efd;
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ⑥ 空きコマのホバー表示 */
+.empty-slot {
+  display: block;
+  height: 100%;
+  line-height: 36px;
+  text-decoration: none;
+}
+.empty-slot .plus-icon {
+  visibility: hidden;   /* display:none だと高さ0になりホバー不可になる */
+  color: #198754;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+.empty-slot:hover .plus-icon {
+  visibility: visible;
+}
+.empty-slot:hover {
+  background-color: #e8f5e9;
+}
+
+/* ⑦ カレンダー全体のスクロール制御 */
+.calendar-scroll-wrapper {
+  overflow-x: auto;
+  /* 縦スクロールはページ全体で行う（position: sticky でヘッダー固定） */
+}
+
+/* ⑧ テーブルヘッダーの固定（縦スクロール時に会議室名を見せ続ける） */
+.calendar-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #212529;
+}
+
+/* ⑨ 時刻列の左固定（横スクロール時に時刻を見せ続ける） */
+.time-col {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background-color: #fff;
+}

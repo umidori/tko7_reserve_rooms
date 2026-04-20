@@ -41,8 +41,12 @@ class CalendarView(LoginRequiredMixin, TemplateView):
             target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
         except (TypeError, ValueError):
             target_date = date.today()  # 不正な値なら当日にフォールバック
-        
+
+        filter_mode = self.request.GET.get('filter', 'all')  # TODO: 所属モデル実装後に 'dept' をデフォルトにする
+
         # is_active=True の会議室のみ取得（利用停止中は除外）
+        # TODO: 所属（Department）モデルと department_rooms が実装されたら
+        #       filter_mode == 'dept' の分岐でユーザーの所属に紐づく会議室を絞り込む
         rooms = Room.objects.filter(is_active=True).order_by('name')
 
         # 00:00〜23:30 を 30 分刻みで生成する
@@ -62,7 +66,7 @@ class CalendarView(LoginRequiredMixin, TemplateView):
         reservation_map = {}
         for rsv in reservations:
             reservation_map[(rsv.room_id, rsv.start_time)] = rsv
-        
+
         # テンプレートが使いやすいよう、2次元リストに変換する
         # grid = [ {slot, cells: [{room, reservation or None}]} ]
         grid = []
@@ -79,6 +83,8 @@ class CalendarView(LoginRequiredMixin, TemplateView):
             'next_date': target_date + timedelta(days=1),
             'rooms': rooms,
             'grid': grid,
+            'today': date.today(),
+            'filter_mode': filter_mode,
         })
         return context
 
