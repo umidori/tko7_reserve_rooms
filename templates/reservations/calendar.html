@@ -43,7 +43,7 @@
             </div>
           {% else %}
             {# 空きコマ：クリックで予約作成へ #}
-            <a href="{% url 'reservation_create' %}?room={{ cell.room.id }}&date={{ target_date|date:'Y-m-d' }}&start={{ row.slot|time:'H:i' }}"
+            <a href="#"
                class="d-block text-center text-success small"
                style="height:100%; line-height:36px;">
               ＋
@@ -85,6 +85,7 @@
     </div>
   </div>
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script>
