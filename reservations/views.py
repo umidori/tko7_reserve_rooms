@@ -6,6 +6,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from datetime import date, datetime, timedelta
 
 from .models import Room, Reservation
 from .forms import RoomForm
@@ -23,6 +26,21 @@ class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_staff
 
+# ──────────────────────────────────────────────
+# F-04：日付を受け取る
+# ──────────────────────────────────────────────
+class CalendarView(LoginRequiredMixin, TemplateView):
+    template_name = 'reservations/calendar.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # GETパラメータ ?date=YYYY-MM-DD を受け取る
+        date_str = self.request.GET.get('date')
+        try:
+            target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except (TypeError, ValueError):
+            target_date = date.today()  # 不正な値なら当日にフォールバック
 
 # ──────────────────────────────────────────────
 # F-18: 会議室一覧（管理者用）
