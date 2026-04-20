@@ -41,6 +41,46 @@ class CalendarView(LoginRequiredMixin, TemplateView):
             target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
         except (TypeError, ValueError):
             target_date = date.today()  # 不正な値なら当日にフォールバック
+        
+        # is_active=True の会議室のみ取得（利用停止中は除外）
+        rooms = Room.objects.filter(is_active=True).order_by('name')
+
+        # 00:00〜23:30 を 30 分刻みで生成する
+        slots = []
+        current = datetime.combine(target_date, datetime.min.time())  # 当日00:00
+        end_of_day = current.replace(hour=23, minute=30)
+        while current <= end_of_day:
+            slots.append(current.time())   # time オブジェクト（例: 09:00）
+            current += timedelta(minutes=30)
+
+        # 当日・キャンセルされていない予約を全件取得
+        reservations = Reservation.objects.filter(
+            date=target_date,
+        ).select_related('room')
+
+        # {(room_id, start_time): reservation} の辞書を作成
+        reservation_map = {}
+        for rsv in reservations:
+            reservation_map[(rsv.room_id, rsv.start_time)] = rsv
+        
+        # テンプレートが使いやすいよう、2次元リストに変換する
+        # grid = [ {slot, cells: [{room, reservation or None}]} ]
+        grid = []
+        for slot in slots:
+            cells = []
+            for room in rooms:
+                rsv = reservation_map.get((room.id, slot))
+                cells.append({'room': room, 'reservation': rsv})
+            grid.append({'slot': slot, 'cells': cells})
+
+        context.update({
+            'target_date': target_date,
+            'prev_date': target_date - timedelta(days=1),
+            'next_date': target_date + timedelta(days=1),
+            'rooms': rooms,
+            'grid': grid,
+        })
+        return context
 
 # ──────────────────────────────────────────────
 # F-18: 会議室一覧（管理者用）
