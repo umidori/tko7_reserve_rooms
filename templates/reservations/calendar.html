@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>日次カレンダー</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'calendar.css' %}">
+</head>
+<body>
+
+<!-- ロゴ（login.htmlと同じ構造）-->
+<div class="logo">
+    <img src="{% static 'bold-logo.webp' %}" alt="logo">
+    <span>社内会議室予約システム：日次カレンダー</span>
+</div>
+
+<!-- カレンダーコンテナ -->
+<div class="calendar-container">
+
+    <!-- ツールバー -->
+    <div class="calendar-toolbar">
+        <div class="toolbar-left">
+            <a href="?date={{ today|date:'Y-m-d' }}&filter={{ filter_mode }}" class="nav-btn">今日</a>
+            <a href="?date={{ prev_date|date:'Y-m-d' }}&filter={{ filter_mode }}" class="nav-btn">←</a>
+            <a href="?date={{ next_date|date:'Y-m-d' }}&filter={{ filter_mode }}" class="nav-btn">→</a>
+        </div>
+        <div class="toolbar-center">
+            <span class="current-date">{{ target_date|date:"n月j日（D）" }}</span>
+        </div>
+        <div class="toolbar-right">
+            <button class="dots-btn" onclick="toggleNavMenu(event)">•••</button>
+            <div class="nav-dropdown" id="navMenu">
+                <a href="#">会議室一覧</a>
+                <a href="#">自分の予約</a>
+                {% if request.user.is_staff %}
+                <a href="{% url 'room_admin_list' %}">管理メニュー</a>
+                {% endif %}
+                <a href="#">パスワード変更</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">ログアウト</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- カレンダーグリッド -->
+    <div class="calendar-scroll">
+        <table class="calendar-table">
+            <thead>
+                <tr>
+                    <th class="time-header"></th>
+                    {% for room in rooms %}
+                    <th class="room-header-cell">
+                        <div class="room-card">{{ room.name }}</div>
+                        {% if room.building %}
+                        <div class="room-building">{{ room.building }}</div>
+                        {% endif %}
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in grid %}
+                <tr>
+                    <td class="time-label">
+                        {% if row.slot.minute == 0 %}{{ row.slot|time:"G:i" }}{% endif %}
+                    </td>
+                    {% for cell in row.cells %}
+                    <td class="calendar-cell">
+                        {% if cell.reservation %}
+                            <div class="reservation-card"
+                                 data-reservation-id="{{ cell.reservation.id }}"
+                                 data-title="{{ cell.reservation.purpose }}"
+                                 data-reserved-by="{{ cell.reservation.reserved_by }}"
+                                 data-start="{{ cell.reservation.start_time|time:'H:i' }}"
+                                 data-end="{{ cell.reservation.end_time|time:'H:i' }}"
+                                 onclick="showReservationModal(this)">
+                                {{ cell.reservation.reserved_by }}｜{{ cell.reservation.purpose|truncatechars:10 }}
+                            </div>
+                        {% else %}
+                            <div class="empty-cell" onclick="location.href='#'">
+                                <span class="plus-icon">＋予約</span>
+                            </div>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- 予約詳細モーダル -->
+<div class="modal-overlay" id="reservationModal" onclick="closeModalOnOverlay(event)">
+    <div class="modal-box">
+        <h5>予約の詳細</h5>
+        <dl>
+            <dt>件名</dt>
+            <dd id="modal-title"></dd>
+            <dt>予約者</dt>
+            <dd id="modal-reserved-by"></dd>
+            <dt>時間</dt>
+            <dd id="modal-time"></dd>
+        </dl>
+        <div class="modal-footer">
+            <a id="modal-detail-link" href="#" class="btn-detail">詳細を見る</a>
+            <button class="btn-close-modal" onclick="closeModal()">閉じる</button>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'calendar.js' %}"></script>
+
+</body>
+</html>
