@@ -122,7 +122,9 @@ STATICFILES_DIRS = [BASE_DIR / "static",]
 
 # 実際のログイン画面URL
 LOGIN_URL = '/accounts/login/'
-# ログイン成功後のリダイレクト先
-LOGIN_REDIRECT_URL = '/'
 
+# ログイン成功後のリダイレクト先
+LOGIN_REDIRECT_URL = '/calendar/'
+
+# ユーザーモデル
 AUTH_USER_MODEL = "accounts.User"
