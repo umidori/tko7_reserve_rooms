@@ -1,9 +1,9 @@
 from django.http import HttpResponse
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, CreateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from datetime import date, datetime, timedelta
-from django.views.generic import CreateView
 from django.urls import reverse_lazy
+from django.utils import timezone
 
 from .models import Room, Reservation
 from .forms import ReservationForm
@@ -108,3 +108,53 @@ class ReservationCreateView(CreateView):
         # ログインユーザーを自動設定
         form.instance.user = self.request.user
         return super().form_valid(form)
+
+
+# ──────────────────────────────────────────────
+# F-06：自分の予約一覧表示
+# ──────────────────────────────────────────────
+class MyReservationListView(LoginRequiredMixin, ListView):
+    model = Reservation
+    template_name = 'reservations/my_reservations.html'
+    context_object_name = 'reservations'
+
+    def get_queryset(self):
+        # タブパラメータ（upcoming / past）
+        tab = self.request.GET.get('tab', 'upcoming')
+        now = timezone.now()
+
+        if tab == 'past':
+            # 過去の予約：キャンセル済みも含め、新しい順
+            return (
+                Reservation.objects
+                .filter(user=self.request.user, start_at__lt=now)
+                .select_related('room')
+                .order_by('-start_at')
+            )
+        else:
+            # 今後の予約：キャンセルされていないものを古い順
+            return (
+                Reservation.objects
+                .filter(user=self.request.user, start_at__gte=now, is_cancelled=False)
+                .select_related('room')
+                .order_by('start_at')
+            )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tab = self.request.GET.get('tab', 'upcoming')
+        context['active_tab'] = tab
+
+        # タブごとの件数（バッジ表示用）
+        now = timezone.now()
+        context['upcoming_count'] = (
+            Reservation.objects
+            .filter(user=self.request.user, start_at__gte=now, is_cancelled=False)
+            .count()
+        )
+        context['past_count'] = (
+            Reservation.objects
+            .filter(user=self.request.user, start_at__lt=now)
+            .count()
+        )
+        return context

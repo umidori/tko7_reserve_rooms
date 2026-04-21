@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>自分の予約一覧 | 会議室予約システム</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'common.css' %}">
+    <link rel="stylesheet" href="{% static 'my_reservations.css' %}">
+</head>
+<body>
+
+<!-- ロゴ（「日次カレンダーに戻る｜ログアウト」を右端に配置） -->
+<div class="logo">
+    <div style="display:flex; align-items:center; gap:15px;">
+        <img src="{% static 'bold-logo.webp' %}" alt="logo">
+        <span>社内会議室予約システム：自分の予約一覧</span>
+    </div>
+    <div class="top-links">
+        <a href="{% url 'calendar' %}">日次カレンダーに戻る</a>
+        <span class="sep">｜</span>
+        <form method="post" action="{% url 'logout' %}" style="margin:0;padding:0;">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">ログアウト</button>
+        </form>
+    </div>
+</div>
+
+<!-- メインコンテナ -->
+<div class="calendar-container">
+
+    <!-- ツールバー -->
+    <div class="calendar-toolbar">
+        <div class="toolbar-left">
+            <span class="page-title">自分の予約一覧</span>
+        </div>
+    </div>
+
+    <!-- タブ -->
+    <div class="tab-bar">
+        <a href="?tab=upcoming"
+           class="tab-btn {% if active_tab == 'upcoming' %}active{% endif %}">
+            今後の予約
+            <span class="tab-count">{{ upcoming_count }}</span>
+        </a>
+        <a href="?tab=past"
+           class="tab-btn {% if active_tab == 'past' %}active{% endif %}">
+            過去の予約
+            <span class="tab-count">{{ past_count }}</span>
+        </a>
+    </div>
+
+    <!-- 予約一覧テーブル -->
+    <div class="admin-card">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>予約日時</th>
+                    <th>会議室</th>
+                    <th>件名</th>
+                    <th>場所</th>
+                    <th>ステータス</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rsv in reservations %}
+                <tr class="clickable-row"
+                    onclick="location.href='/reservations/{{ rsv.id }}/'">
+                    <td>
+                        {{ rsv.start_at|date:"Y/m/d（D）" }}<br>
+                        <span style="color:#888; font-size:13px;">
+                            {{ rsv.start_at|time:"H:i" }}〜{{ rsv.end_at|time:"H:i" }}
+                        </span>
+                    </td>
+                    <td>{{ rsv.room.name }}</td>
+                    <td>{{ rsv.title }}</td>
+                    <td>
+                        {% if rsv.room.building %}
+                            {{ rsv.room.building.name }}
+                            {% if rsv.room.floor %}{{ rsv.room.floor }}階{% endif %}
+                        {% else %}
+                            ―
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if rsv.is_cancelled %}
+                            <span class="badge badge-cancelled">キャンセル済み</span>
+                        {% elif active_tab == 'past' %}
+                            <span class="badge badge-past">終了</span>
+                        {% else %}
+                            <span class="badge badge-reserved">予約済み</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr class="empty-row">
+                    <td colspan="5">
+                        {% if active_tab == 'upcoming' %}
+                            今後の予約はありません。<br>
+                            「＋ 新しい予約を作成する」から予約してください。
+                        {% else %}
+                            過去の予約はありません。
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 新規予約ボタン -->
+    <div class="action-bar">
+        <a href="{% url 'reservation_create' %}" class="btn-new-reservation">
+            ＋ 新しい予約を作成する
+        </a>
+    </div>
+
+</div><!-- /.calendar-container -->
+
+</body>
+</html>
