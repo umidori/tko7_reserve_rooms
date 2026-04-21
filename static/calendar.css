@@ -156,6 +156,8 @@
     padding: 1px 3px;
     height: 22px;
     vertical-align: top;
+    /* rowspan使用時に高さが自然に伸びるよう min-height で制御 */
+    min-height: 22px;
 }
 
 
@@ -191,14 +193,16 @@
     background-color: #3182CE;
     color: #fff;
     border-radius: 4px;
-    padding: 1px 6px;
+    padding: 4px 6px;
     font-size: 11px;
     cursor: pointer;
-    height: 20px;
+    /* rowspanでセルが縦に伸びるため、カードもセル全体を満たす */
+    height: 100%;
+    box-sizing: border-box;
     overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    line-height: 18px;
+    white-space: normal;
+    word-break: break-all;
+    line-height: 1.4;
 }
 
 .reservation-card:hover {

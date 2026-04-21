@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from datetime import date, datetime, timedelta
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.timezone import localtime
 
 from .models import Room, Reservation
 from .forms import ReservationForm
@@ -50,19 +51,49 @@ class CalendarView(LoginRequiredMixin, TemplateView):
             is_cancelled=False,
         ).select_related('room')
 
-        # {(room_id, start_time): reservation} の辞書を作成
+        # {(room_id, local_start_time): {reservation, span}} の辞書を作成
+        # ※ start_at はUTC保存のため localtime() でJSTに変換してから .time() を取得する
         reservation_map = {}
         for rsv in reservations:
-            reservation_map[(rsv.room_id, rsv.start_at.time())] = rsv
+            local_start = localtime(rsv.start_at)
+            local_end   = localtime(rsv.end_at)
+            start_time  = local_start.time()
+            # 30分スロット単位のスパン数（端数は切り捨て、最低1）
+            duration_min = int((local_end - local_start).total_seconds() / 60)
+            span = max(1, duration_min // 30)
+            reservation_map[(rsv.room_id, start_time)] = {'reservation': rsv, 'span': span}
+
+        # スパンによって「占有済み」になる後続スロットを事前に集合で管理する
+        occupied = set()  # (room_id, slot_time) -> そのスロットは td を出力しない
+        for (room_id, start_time), data in reservation_map.items():
+            span = data['span']
+            for i, slot in enumerate(slots):
+                if slot == start_time:
+                    for j in range(1, span):
+                        if i + j < len(slots):
+                            occupied.add((room_id, slots[i + j]))
+                    break
 
         # テンプレートが使いやすいよう、2次元リストに変換する
-        # grid = [ {slot, cells: [{room, reservation or None}]} ]
+        # grid = [ {slot, cells: [{room, reservation, span, skip}]} ]
         grid = []
         for slot in slots:
             cells = []
             for room in rooms:
-                rsv = reservation_map.get((room.id, slot))
-                cells.append({'room': room, 'reservation': rsv})
+                if (room.id, slot) in occupied:
+                    # 前のスロットの rowspan に吸収されるセル → td を出力しない
+                    cells.append({'room': room, 'reservation': None, 'span': 1, 'skip': True})
+                else:
+                    data = reservation_map.get((room.id, slot))
+                    if data:
+                        cells.append({
+                            'room': room,
+                            'reservation': data['reservation'],
+                            'span': data['span'],
+                            'skip': False,
+                        })
+                    else:
+                        cells.append({'room': room, 'reservation': None, 'span': 1, 'skip': False})
             grid.append({'slot': slot, 'cells': cells})
 
         context.update({
