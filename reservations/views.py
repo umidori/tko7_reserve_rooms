@@ -2,8 +2,11 @@ from django.http import HttpResponse
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from datetime import date, datetime, timedelta
+from django.views.generic import CreateView
+from django.urls import reverse_lazy
 
 from .models import Room, Reservation
+from .forms import ReservationForm
 
 
 def home(request):
@@ -43,13 +46,14 @@ class CalendarView(LoginRequiredMixin, TemplateView):
 
         # 当日・キャンセルされていない予約を全件取得
         reservations = Reservation.objects.filter(
-            date=target_date,
+            start_at__date=target_date,
+            is_cancelled=False,
         ).select_related('room')
 
         # {(room_id, start_time): reservation} の辞書を作成
         reservation_map = {}
         for rsv in reservations:
-            reservation_map[(rsv.room_id, rsv.start_time)] = rsv
+            reservation_map[(rsv.room_id, rsv.start_at.time())] = rsv
 
         # テンプレートが使いやすいよう、2次元リストに変換する
         # grid = [ {slot, cells: [{room, reservation or None}]} ]
@@ -72,3 +76,35 @@ class CalendarView(LoginRequiredMixin, TemplateView):
         })
         return context
 
+class ReservationCreateView(CreateView):
+    model = Reservation
+    form_class = ReservationForm
+    template_name = 'reservations/create.html'
+    success_url = reverse_lazy('calendar')  # 遷移先
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        room_id = self.request.GET.get('room')
+
+        selected_room = None
+        if room_id:
+            try:
+                selected_room = Room.objects.get(id=room_id)
+            except Room.DoesNotExist:
+                selected_room = None
+
+        context['selected_room'] = selected_room
+        return context
+
+    def get_initial(self):
+        initial = super().get_initial()
+        room_id = self.request.GET.get('room')
+        if room_id:
+            initial['room'] = room_id
+        return initial
+    
+    def form_valid(self, form):
+        # ログインユーザーを自動設定
+        form.instance.user = self.request.user
+        return super().form_valid(form)
