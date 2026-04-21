@@ -15,14 +15,14 @@
         <span>社内会議室予約システム：予約作成</span>
     </div>
 
-    <div class="nav">
+    <div class="top-links">
         <a href="{% url 'calendar' %}">日次カレンダーに戻る</a>
         <span>|</span>
         <a href="#">自分の予約</a>
         <span>|</span>
         <form method="post" action="{% url 'logout' %}" class="logout-form">
             {% csrf_token %}
-            <button type="submit" class="nav-link-like">ログアウト</button>
+            <button type="submit" class="logout-btn">ログアウト</button>
         </form>
     </div>
 </div>

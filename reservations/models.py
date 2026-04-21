@@ -154,9 +154,6 @@ class Reservation(models.Model):
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     reserved_by = models.CharField(max_length=100)
-    date = models.DateField()
-    start_time = models.TimeField()
-    end_time = models.TimeField()
     purpose = models.CharField(max_length=200, blank=True)
 
     title = models.CharField(max_length=200)
@@ -173,6 +170,8 @@ class Reservation(models.Model):
 
     class Meta:
         db_table = "reservations"
+        verbose_name = "予約"
+        verbose_name_plural = "予約"
 
     def __str__(self):
         return self.title
