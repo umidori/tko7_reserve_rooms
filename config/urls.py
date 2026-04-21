@@ -33,4 +33,7 @@ urlpatterns = [
 
     # 会議室メインページ
     path('', include('reservations.urls')),
+
+    # 管理パネル（会議室マスタ管理など）
+    path('admin-panel/', include('admin_panel.urls')),
 ]
