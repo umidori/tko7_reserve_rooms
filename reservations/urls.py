@@ -8,6 +8,7 @@ from .views import (
     RoomUpdateView,
     RoomDeleteView,
     RoomToggleActiveView,
+    ReservationCreateView,
 )
 
 urlpatterns = [
@@ -28,4 +29,5 @@ urlpatterns = [
          RoomDeleteView.as_view(),        name='room_delete'),
     path('admin-panel/rooms/<int:pk>/toggle-active/',
          RoomToggleActiveView.as_view(),  name='room_toggle_active'),
+    path('reservations/create/', ReservationCreateView.as_view(), name='reservation_create'),
 ]

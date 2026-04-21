@@ -126,5 +126,8 @@ LOGIN_URL = '/accounts/login/'
 # ログイン成功後のリダイレクト先
 LOGIN_REDIRECT_URL = '/calendar/'
 
+# ログアウト後のリダイレクト先
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+
 # ユーザーモデル
 AUTH_USER_MODEL = "accounts.User"

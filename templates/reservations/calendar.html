@@ -33,6 +33,7 @@
             <div class="nav-dropdown" id="navMenu">
                 <a href="#">会議室一覧</a>
                 <a href="#">自分の予約</a>
+                <a href="{% url 'reservation_create' %}">予約作成</a>
                 {% if request.user.is_staff %}
                 <a href="{% url 'room_admin_list' %}">管理メニュー</a>
                 {% endif %}
