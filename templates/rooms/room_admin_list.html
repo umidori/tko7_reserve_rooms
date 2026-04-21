@@ -1,231 +1,207 @@
-{% extends "base.html" %}
-{% block title %}会議室マスタ管理 | 会議室予約システム{% endblock %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>会議室マスタ管理 | 会議室予約システム</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'common.css' %}">
+    <link rel="stylesheet" href="{% static 'room_admin.css' %}">
+</head>
+<body>
 
-{% block content %}
-<!-- ページヘッダー -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <div>
-    <h1 class="h3 fw-bold mb-1">
-      <i class="bi bi-building me-2 text-primary"></i>会議室マスタ管理
-    </h1>
-    <p class="text-muted small mb-0">会議室の登録・編集・削除・利用停止を管理します</p>
-  </div>
-  <a href="{% url 'room_create' %}" class="btn btn-primary">
-    <i class="bi bi-plus-lg me-1"></i>新規会議室を追加
-  </a>
-</div>
-
-<!-- 会議室一覧テーブル -->
-<div class="card shadow-sm">
-  <div class="card-body p-0">
-    <table class="table table-hover align-middle mb-0">
-      <thead class="table-light">
-        <tr>
-          <th class="ps-3">室名</th>
-          <th class="text-center">収容人数</th>
-          <th>建物</th>
-          <th class="text-center">階数</th>
-          <th class="text-center">ステータス</th>
-          <th class="text-center">今後の予約</th>
-          <th class="text-center pe-3">操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for room in rooms %}
-        <tr>
-          <!-- 室名 -->
-          <td class="ps-3 fw-semibold">{{ room.name }}</td>
-
-          <!-- 収容人数 -->
-          <td class="text-center">
-            <i class="bi bi-people text-muted me-1"></i>{{ room.capacity }}名
-          </td>
-
-          <!-- 建物 -->
-          <td>{{ room.building|default:"―" }}</td>
-
-          <!-- 階数 -->
-          <td class="text-center">
-            {% if room.floor %}{{ room.floor }}F{% else %}―{% endif %}
-          </td>
-
-          <!-- ステータス -->
-          <td class="text-center">
-            {% if room.is_active %}
-              <span class="badge bg-success">
-                <i class="bi bi-check-circle me-1"></i>利用可
-              </span>
-            {% else %}
-              <span class="badge bg-danger">
-                <i class="bi bi-x-circle me-1"></i>停止中
-              </span>
-            {% endif %}
-          </td>
-
-          <!-- 今後の予約件数 -->
-          <td class="text-center">
-            {% if room.future_reservation_count > 0 %}
-              <span class="badge bg-info text-dark">{{ room.future_reservation_count }}件</span>
-            {% else %}
-              <span class="text-muted">0件</span>
-            {% endif %}
-          </td>
-
-          <!-- 操作ボタン -->
-          <td class="text-center pe-3">
-            <div class="d-flex justify-content-center gap-1">
-
-              {# F-18: 編集ボタン #}
-              <a href="{% url 'room_edit' room.pk %}"
-                 class="btn btn-outline-primary btn-sm" title="編集">
-                <i class="bi bi-pencil"></i>
-              </a>
-
-              {# F-20: 利用停止 / 再開ボタン #}
-              <form method="post"
-                    action="{% url 'room_toggle_active' room.pk %}"
-                    class="d-inline">
-                {% csrf_token %}
-                {% if room.is_active %}
-                  <button type="submit" class="btn btn-warning btn-sm" title="利用停止にする"
-                          onclick="return confirm('「{{ room.name }}」を利用停止にしますか？\n既存の予約はそのまま残ります。')">
-                    <i class="bi bi-pause-circle"></i>
-                  </button>
-                {% else %}
-                  <button type="submit" class="btn btn-success btn-sm" title="利用を再開する"
-                          onclick="return confirm('「{{ room.name }}」の利用を再開しますか？')">
-                    <i class="bi bi-play-circle"></i>
-                  </button>
-                {% endif %}
-              </form>
-
-              {# F-19: 削除ボタン → Bootstrap モーダル #}
-              <button type="button"
-                      class="btn btn-danger btn-sm" title="削除する"
-                      data-bs-toggle="modal"
-                      data-bs-target="#deleteModal"
-                      data-room-id="{{ room.pk }}"
-                      data-room-name="{{ room.name }}"
-                      data-reservation-count="{{ room.future_reservation_count }}"
-                      data-delete-url="{% url 'room_delete' room.pk %}">
-                <i class="bi bi-trash"></i>
-              </button>
-
-            </div>
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="7" class="text-center text-muted py-5">
-            <i class="bi bi-inbox display-6 d-block mb-2"></i>
-            会議室が登録されていません
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-
-<!-- ===== F-19: 削除確認モーダル（2段階） ===== -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-
-      <!-- Step 1: 最初の確認 -->
-      <div id="deleteStep1">
-        <div class="modal-header bg-danger text-white">
-          <h5 class="modal-title">
-            <i class="bi bi-exclamation-triangle me-2"></i>会議室の削除
-          </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <p class="mb-2">以下の会議室を削除しますか？</p>
-          <p class="fw-bold fs-5 text-center" id="modalRoomName"></p>
-          <div id="reservationWarning" class="alert alert-warning d-none">
-            <i class="bi bi-exclamation-triangle me-1"></i>
-            <span id="reservationCount"></span>件の予約が存在します。<br>
-            削除すると<strong>予約データも消えます。</strong>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-          <button type="button" class="btn btn-danger" id="proceedToStep2">
-            削除する <i class="bi bi-arrow-right ms-1"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- Step 2: 最終確認 -->
-      <div id="deleteStep2" class="d-none">
-        <div class="modal-header bg-danger text-white">
-          <h5 class="modal-title">
-            <i class="bi bi-exclamation-octagon me-2"></i>最終確認
-          </h5>
-        </div>
-        <div class="modal-body text-center py-4">
-          <i class="bi bi-trash display-4 text-danger d-block mb-3"></i>
-          <p class="mb-1">本当に削除しますか？</p>
-          <p class="text-danger fw-bold" id="modalRoomName2"></p>
-          <p class="small text-muted">この操作は取り消せません。</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" id="backToStep1">
-            <i class="bi bi-arrow-left me-1"></i>戻る
-          </button>
-          <form id="deleteForm" method="post" class="d-inline">
+<!-- ロゴ（「戻る｜ログアウト」を右端に配置） -->
+<div class="logo">
+    <div style="display:flex; align-items:center; gap:15px;">
+        <img src="{% static 'bold-logo.webp' %}" alt="logo">
+        <span>社内会議室予約システム：会議室マスタ管理</span>
+    </div>
+    <div class="top-links">
+        <a href="{% url 'home' %}">戻る</a>
+        <span class="sep">｜</span>
+        <form method="post" action="{% url 'logout' %}" style="margin:0;padding:0;">
             {% csrf_token %}
-            <button type="submit" class="btn btn-danger">
-              <i class="bi bi-trash me-1"></i>削除を実行する
-            </button>
-          </form>
+            <button type="submit" class="logout-btn">ログアウト</button>
+        </form>
+    </div>
+</div>
+
+<!-- メインコンテナ（calendar.htmlと同じ） -->
+<div class="calendar-container">
+
+    <!-- ツールバー -->
+    <div class="calendar-toolbar">
+        <div class="toolbar-left">
+            <span class="page-title">会議室マスタ管理</span>
         </div>
-      </div>
+        <div class="toolbar-right">
+            <a href="{% url 'room_create' %}" class="btn-add">＋ 新規会議室を追加</a>
+        </div>
+    </div>
+
+    <!-- 会議室一覧テーブル -->
+    <div class="admin-card">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>室名</th>
+                    <th class="center">収容人数</th>
+                    <th>建物</th>
+                    <th class="center">階数</th>
+                    <th class="center">ステータス</th>
+                    <th class="center">今後の予約</th>
+                    <th class="center">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for room in rooms %}
+                <tr>
+                    <td><strong>{{ room.name }}</strong></td>
+                    <td class="center">{{ room.capacity }}名</td>
+                    <td>{{ room.building|default:"―" }}</td>
+                    <td class="center">
+                        {% if room.floor %}{{ room.floor }}F{% else %}―{% endif %}
+                    </td>
+                    <td class="center">
+                        {% if room.is_active %}
+                            <span class="badge badge-active">利用可</span>
+                        {% else %}
+                            <span class="badge badge-stopped">停止中</span>
+                        {% endif %}
+                    </td>
+                    <td class="center">
+                        {% if room.future_reservation_count > 0 %}
+                            <span class="badge badge-count">{{ room.future_reservation_count }}件</span>
+                        {% else %}
+                            <span style="color:#bbb;">0件</span>
+                        {% endif %}
+                    </td>
+                    <td class="center">
+                        <div class="action-group">
+
+                            {# F-18: 編集ボタン #}
+                            <a href="{% url 'room_edit' room.pk %}"
+                               class="btn-action" title="編集">編集</a>
+
+                            {# F-20: 利用停止 / 再開ボタン #}
+                            <form method="post"
+                                  action="{% url 'room_toggle_active' room.pk %}"
+                                  style="display:inline;margin:0;padding:0;">
+                                {% csrf_token %}
+                                {% if room.is_active %}
+                                    <button type="submit"
+                                            class="btn-action btn-stop"
+                                            onclick="return confirm('「{{ room.name }}」を利用停止にしますか？\n既存の予約はそのまま残ります。')">
+                                        停止
+                                    </button>
+                                {% else %}
+                                    <button type="submit"
+                                            class="btn-action btn-resume"
+                                            onclick="return confirm('「{{ room.name }}」の利用を再開しますか？')">
+                                        再開
+                                    </button>
+                                {% endif %}
+                            </form>
+
+                            {# F-19: 削除ボタン #}
+                            <button type="button"
+                                    class="btn-action btn-delete"
+                                    onclick="openDeleteModal('{{ room.pk }}', '{{ room.name }}', {{ room.future_reservation_count }}, '{% url 'room_delete' room.pk %}')">
+                                削除
+                            </button>
+
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr class="empty-row">
+                    <td colspan="7">会議室が登録されていません</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+
+<!-- ===== F-19: 削除確認モーダル（calendar.htmlのmodal-overlayと同じ構造） ===== -->
+<div class="modal-overlay" id="deleteModal" onclick="closeModalOnOverlay(event)">
+    <div class="modal-box">
+
+        <!-- Step 1: 最初の確認 -->
+        <div id="deleteStep1">
+            <h5>会議室の削除</h5>
+            <p>以下の会議室を削除しますか？</p>
+            <p class="modal-room-name" id="modalRoomName"></p>
+            <div id="reservationWarning" class="modal-warning" style="display:none;">
+                <span id="reservationCount"></span>件の予約が存在します。<br>
+                削除すると<strong>予約データも消えます。</strong>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeDeleteModal()">キャンセル</button>
+                <button class="btn-danger" id="proceedToStep2">削除する →</button>
+            </div>
+        </div>
+
+        <!-- Step 2: 最終確認 -->
+        <div id="deleteStep2" style="display:none;">
+            <h5>最終確認</h5>
+            <p style="text-align:center;margin-top:16px;">本当に削除しますか？</p>
+            <p class="modal-room-name" id="modalRoomName2" style="color:#e74c3c;"></p>
+            <p style="text-align:center;color:#aaa;font-size:13px;">この操作は取り消せません。</p>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="backToStep1">← 戻る</button>
+                <form id="deleteForm" method="post" style="margin:0;padding:0;display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-danger">削除を実行する</button>
+                </form>
+            </div>
+        </div>
 
     </div>
-  </div>
 </div>
-{% endblock %}
 
 
-{% block extra_js %}
 <script>
-// 削除モーダルにデータをセット
-document.getElementById('deleteModal').addEventListener('show.bs.modal', function(event) {
-  const btn   = event.relatedTarget;
-  const name  = btn.dataset.roomName;
-  const count = parseInt(btn.dataset.reservationCount);
-  const url   = btn.dataset.deleteUrl;
+function openDeleteModal(id, name, count, url) {
+    document.getElementById('modalRoomName').textContent  = name;
+    document.getElementById('modalRoomName2').textContent = name;
+    document.getElementById('deleteForm').action = url;
 
-  document.getElementById('modalRoomName').textContent  = name;
-  document.getElementById('modalRoomName2').textContent = name;
-  document.getElementById('deleteForm').action = url;
+    const warning = document.getElementById('reservationWarning');
+    if (count > 0) {
+        document.getElementById('reservationCount').textContent = count;
+        warning.style.display = 'block';
+    } else {
+        warning.style.display = 'none';
+    }
 
-  const warning = document.getElementById('reservationWarning');
-  if (count > 0) {
-    document.getElementById('reservationCount').textContent = count;
-    warning.classList.remove('d-none');
-  } else {
-    warning.classList.add('d-none');
-  }
+    document.getElementById('deleteStep1').style.display = 'block';
+    document.getElementById('deleteStep2').style.display = 'none';
+    document.getElementById('deleteModal').classList.add('open');
+}
 
-  // Step1 を表示、Step2 を非表示
-  document.getElementById('deleteStep1').classList.remove('d-none');
-  document.getElementById('deleteStep2').classList.add('d-none');
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('open');
+}
+
+function closeModalOnOverlay(event) {
+    if (event.target === document.getElementById('deleteModal')) {
+        closeDeleteModal();
+    }
+}
+
+document.getElementById('proceedToStep2').addEventListener('click', function () {
+    document.getElementById('deleteStep1').style.display = 'none';
+    document.getElementById('deleteStep2').style.display = 'block';
 });
 
-// Step1 → Step2
-document.getElementById('proceedToStep2').addEventListener('click', function() {
-  document.getElementById('deleteStep1').classList.add('d-none');
-  document.getElementById('deleteStep2').classList.remove('d-none');
-});
-
-// Step2 → Step1
-document.getElementById('backToStep1').addEventListener('click', function() {
-  document.getElementById('deleteStep2').classList.add('d-none');
-  document.getElementById('deleteStep1').classList.remove('d-none');
+document.getElementById('backToStep1').addEventListener('click', function () {
+    document.getElementById('deleteStep2').style.display = 'none';
+    document.getElementById('deleteStep1').style.display = 'block';
 });
 </script>
-{% endblock %}
+
+</body>
+</html>
