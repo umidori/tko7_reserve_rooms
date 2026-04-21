@@ -46,11 +46,12 @@
                 <tr>
                     <th>室名</th>
                     <th class="center">収容人数</th>
-                    <th>建物</th>
-                    <th class="center">階数</th>
-                    <th class="center">ステータス</th>
+                    <th>設備</th>
+                    <th>建物／数</th>
+                    <th class="center">利用状況</th>
                     <th class="center">今後の予約</th>
                     <th class="center">操作</th>
+                    <th>所属別表示設定</th>
                 </tr>
             </thead>
             <tbody>
@@ -58,10 +59,8 @@
                 <tr>
                     <td><strong>{{ room.name }}</strong></td>
                     <td class="center">{{ room.capacity }}名</td>
-                    <td>{{ room.building|default:"―" }}</td>
-                    <td class="center">
-                        {% if room.floor %}{{ room.floor }}F{% else %}―{% endif %}
-                    </td>
+                    <td>{{ room.facility|default:"―" }}</td>
+                    <td>{{ room.building|default:"―" }}{% if room.floor %}{{ room.floor }}階{% else %}―{% endif %}</td>
                     <td class="center">
                         {% if room.is_active %}
                             <span class="badge badge-active">利用可</span>
@@ -112,6 +111,7 @@
 
                         </div>
                     </td>
+                    <td>{{ room.department|default:"―" }}</td>
                 </tr>
                 {% empty %}
                 <tr class="empty-row">
