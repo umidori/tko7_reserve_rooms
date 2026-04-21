@@ -1,0 +1,100 @@
+/* =====================================================
+   common.css
+   calendar.css・room_admin.css 共通スタイル
+   全ページで読み込む基盤CSS
+   ===================================================== */
+
+
+/* ===== 全体 ===== */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* ===== ロゴ ===== */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 24px 40px 12px;
+}
+
+.logo img {
+    height: 40px;
+}
+
+.logo span {
+    font-size: 20px;
+    color: #666;
+}
+
+
+/* ===== メインコンテナ ===== */
+/* calendar.html・room_admin両画面で共通使用 */
+.calendar-container {
+    padding: 0 40px 40px;
+}
+
+
+/* ===== ツールバー ===== */
+/* calendar.html・room_admin両画面で共通使用 */
+.calendar-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.toolbar-left {
+    display: flex;
+    gap: 4px;
+}
+
+.toolbar-right {
+    position: relative;
+}
+
+
+/* ===== モーダルオーバーレイ ===== */
+/* calendar.html・room_admin両画面で完全共通 */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.35);
+    z-index: 200;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-overlay.open {
+    display: flex;
+}
+
+
+/* ===== モーダルボックス（ベース） ===== */
+/* width は各CSSファイルで上書き
+   calendar.css → 360px / room_admin.css → 400px */
+.modal-box {
+    background: #fff;
+    padding: 36px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+
+/* ===== モーダルフッター（ベース） ===== */
+/* margin-top は room_admin.css で上書き */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
