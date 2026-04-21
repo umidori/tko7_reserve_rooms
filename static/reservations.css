@@ -35,25 +35,26 @@ body {
   white-space: nowrap;
 }
 
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 15px;
-  white-space: nowrap;
+.top-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
 }
 
-.nav a {
-  color: #555;
-  text-decoration: none;
+.top-links a {
+    color: #555;
+    text-decoration: none;
 }
 
-.nav a:hover {
-  text-decoration: underline;
+.top-links a:hover {
+    color: #333;
+    text-decoration: underline;
 }
 
-.nav span {
-  color: #777;
+.top-links .sep {
+    color: #ccc;
 }
 
 /* ===== ページ全体 ===== */
@@ -285,18 +286,19 @@ textarea::placeholder {
   margin: 0;
 }
 
-.nav-link-like {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0 6px;
-  font: inherit;
-  color: #555;
-  cursor: pointer;
+.top-links .logout-btn {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
+    cursor: pointer;
+    padding: 0;
 }
 
-.nav-link-like:hover {
-  text-decoration: underline;
+.top-links .logout-btn:hover {
+    color: #e74c3c;
+    text-decoration: underline;
 }
 
 /* ===== レスポンシブ ===== */
