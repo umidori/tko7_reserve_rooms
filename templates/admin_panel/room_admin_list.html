@@ -124,7 +124,11 @@
                             {# F-19: 削除ボタン #}
                             <button type="button"
                                     class="btn-action btn-delete"
-                                    onclick="openDeleteModal('{{ room.pk }}', '{{ room.name }}', {{ room.future_reservation_count }}, '{% url 'room_delete' room.pk %}')">
+                                    data-room-id="{{ room.pk }}"
+                                    data-room-name="{{ room.name|escapejs }}"
+                                    data-reservation-count="{{ room.future_reservation_count }}"
+                                    data-delete-url="{% url 'room_delete' room.pk %}"
+                                    onclick="openDeleteModal(this)">
                                 削除
                             </button>
 

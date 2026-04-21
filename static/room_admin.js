@@ -95,12 +95,13 @@ function closeRoomModalOnOverlay(event) {
 
 /**
  * 削除確認モーダルを開く
- * @param {string|number} id    会議室 PK
- * @param {string}        name  会議室名
- * @param {number}        count 今後の予約件数
- * @param {string}        url   削除 POST 先 URL
+ * @param {HTMLElement} btn  削除ボタン要素（data-* 属性から情報を取得）
  */
-function openDeleteModal(id, name, count, url) {
+function openDeleteModal(btn) {
+    const name  = btn.dataset.roomName;
+    const count = parseInt(btn.dataset.reservationCount, 10);
+    const url   = btn.dataset.deleteUrl;
+
     document.getElementById('modalRoomName').textContent  = name;
     document.getElementById('modalRoomName2').textContent = name;
     document.getElementById('deleteForm').action          = url;
