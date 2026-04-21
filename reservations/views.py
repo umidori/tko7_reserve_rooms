@@ -2,9 +2,11 @@ from django.http import HttpResponse
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from datetime import date, datetime, timedelta
+from django.views.generic import CreateView
+from django.urls import reverse_lazy
 
 from .models import Room, Reservation
-from .forms import RoomForm, ReservationForm
+from .forms import ReservationForm
 
 
 def home(request):
