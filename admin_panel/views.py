@@ -28,7 +28,7 @@ def _list_context():
     for room in rooms:
         room.future_reservation_count = Reservation.objects.filter(
             room=room,
-            date__gte=now.date(),
+            start_at__date__gte=now.date(),
         ).count()
         room.facility_ids = ','.join(
             str(pk) for pk in room.facilities.values_list('id', flat=True)
@@ -64,7 +64,7 @@ class RoomAdminListView(StaffRequiredMixin, ListView):
         for room in context['rooms']:
             room.future_reservation_count = Reservation.objects.filter(
                 room=room,
-                date__gte=now.date(),
+                start_at__date__gte=now.date(),
             ).count()
             room.facility_ids = ','.join(
                 str(pk) for pk in room.facilities.values_list('id', flat=True)
