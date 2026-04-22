@@ -1,0 +1,384 @@
+/* =====================================================
+   room_list.css
+   会議室一覧・絞り込み検索画面（F-07・F-08 / S-04）専用スタイル
+   共通スタイルは common.css を参照
+   room_admin.css と同じ設計方針で作成
+   ===================================================== */
+
+
+/* ===== ロゴ行に「日次カレンダーに戻る｜自分の予約｜ログアウト」を右寄せ ===== */
+.logo {
+    justify-content: space-between;
+}
+
+
+/* ===== 「戻る｜ログアウト」ナビ（my_reservations.css と同一） ===== */
+.top-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.top-links a {
+    color: #555;
+    text-decoration: none;
+}
+
+.top-links a:hover {
+    color: #333;
+    text-decoration: underline;
+}
+
+.top-links .sep {
+    color: #ccc;
+}
+
+.top-links .logout-btn {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
+    cursor: pointer;
+    padding: 0;
+}
+
+.top-links .logout-btn:hover {
+    color: #e74c3c;
+    text-decoration: underline;
+}
+
+
+/* ===== 検索フォームカード ===== */
+.search-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.search-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #888;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+
+/* ===== 検索フォーム行レイアウト ===== */
+.search-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 32px;
+    align-items: flex-end;
+}
+
+.search-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.search-field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+
+/* ===== 数値入力・セレクト ===== */
+.search-input {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #eef2f7;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+    width: 90px;
+    box-sizing: border-box;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #3182CE;
+    background-color: #fff;
+}
+
+.search-select {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #eef2f7;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+    min-width: 140px;
+    box-sizing: border-box;
+}
+
+.search-select:focus {
+    outline: none;
+    border-color: #3182CE;
+    background-color: #fff;
+}
+
+
+/* ===== 単位ラベル付き入力（「名以上」「階」） ===== */
+.search-input-with-unit {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.search-unit {
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+
+/* ===== 設備チェックボックスグループ ===== */
+.search-check-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+}
+
+.search-check-group ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+}
+
+.search-check-group li {
+    display: flex;
+    align-items: center;
+}
+
+.search-check-group label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
+    color: #444;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.search-check-group input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+    accent-color: #3182CE;
+}
+
+
+/* ===== 検索・クリアボタン ===== */
+.search-btn-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.btn-search {
+    padding: 9px 24px;
+    background-color: #2c3e50;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: background-color 0.15s;
+}
+
+.btn-search:hover {
+    background-color: #1a252f;
+}
+
+.btn-clear {
+    display: inline-block;
+    padding: 9px 20px;
+    background-color: #eef2f7;
+    border: none;
+    border-radius: 8px;
+    color: #555;
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.btn-clear:hover {
+    background-color: #e0e5ee;
+}
+
+
+/* ===== 検索結果サマリー ===== */
+.search-summary {
+    font-size: 13px;
+    color: #666;
+    font-family: 'Segoe UI', sans-serif;
+    margin-bottom: 12px;
+    padding: 0 2px;
+}
+
+
+/* ===== 一覧テーブルカード（room_admin.css の .admin-card と同一） ===== */
+.admin-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.list-header {
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f6ff;
+    border-bottom: 1px solid #dce8f5;
+}
+
+
+/* ===== 一覧テーブル（room_admin.css の .admin-table と同一） ===== */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.admin-table thead {
+    background-color: #2c3e50;
+    color: #fff;
+}
+
+.admin-table th {
+    padding: 13px 16px;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.admin-table th.center,
+.admin-table td.center {
+    text-align: center;
+}
+
+.admin-table td {
+    padding: 11px 16px;
+    border-bottom: 1px solid #eef2f7;
+    color: #444;
+    vertical-align: middle;
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table tbody tr:hover td {
+    background-color: #f9fbff;
+}
+
+/* 利用停止中の行をグレーアウト */
+.admin-table tbody tr.row-inactive td {
+    color: #aaa;
+    background-color: #fafafa;
+}
+
+.admin-table tbody tr.row-inactive:hover td {
+    background-color: #f5f5f5;
+}
+
+
+/* ===== バッジ（room_admin.css と同一＋追加） ===== */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.badge-active   { background-color: #6cc3a0; color: #fff; }
+.badge-stopped  { background-color: #e74c3c; color: #fff; }
+
+
+/* ===== 設備タグ（room_admin.css と同一） ===== */
+.facility-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 1px 2px;
+    border-radius: 10px;
+    font-size: 12px;
+    background: #e8f4fd;
+    color: #2c6e9b;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+
+/* ===== カレンダーリンク ===== */
+.btn-calendar-link {
+    display: inline-block;
+    padding: 5px 12px;
+    border: 1px solid #3182CE;
+    border-radius: 6px;
+    color: #3182CE;
+    font-size: 12px;
+    font-family: 'Segoe UI', sans-serif;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.15s;
+}
+
+.btn-calendar-link:hover {
+    background-color: #ebf4ff;
+}
+
+.row-inactive .btn-calendar-link {
+    border-color: #ccc;
+    color: #aaa;
+}
+
+.row-inactive .btn-calendar-link:hover {
+    background-color: #f5f5f5;
+}
+
+
+/* ===== ページタイトル（common.css 系） ===== */
+.page-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+
+/* ===== 空状態 ===== */
+.empty-row td {
+    text-align: center;
+    padding: 48px;
+    color: #aaa;
+    font-size: 14px;
+}
