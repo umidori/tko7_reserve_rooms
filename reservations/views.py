@@ -8,8 +8,12 @@ from django.utils.timezone import localtime
 
 from .models import Room, Reservation, DepartmentRoom
 from .forms import ReservationForm
+<<<<<<< Updated upstream
 from accounts.models import Department
 
+=======
+from django.views.generic import DetailView
+>>>>>>> Stashed changes
 
 def home(request):
     return HttpResponse("meeting room reservation system")
@@ -198,3 +202,9 @@ class MyReservationListView(LoginRequiredMixin, ListView):
             .count()
         )
         return context
+    
+    
+class ReservationDetailView(LoginRequiredMixin, DetailView):
+    model = Reservation
+    template_name = 'reservations/detail.html'
+    context_object_name = 'reservation'
