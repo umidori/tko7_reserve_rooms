@@ -1,6 +1,6 @@
 import logging
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 
 logger = logging.getLogger(__name__)
@@ -24,3 +24,11 @@ class AdminRequiredMixin(LoginRequiredMixin):
             raise PermissionDenied
 
         return super().dispatch(request, *args, **kwargs)
+    
+    """role='admin' かつ is_active=True のユーザーのみアクセスを許可する Mixin
+    - 未認証 → LOGIN_URL へリダイレクト（LoginRequiredMixin が処理）
+    - role != 'admin' または is_active=False → 403 Forbidden（UserPassesTestMixin が処理）
+    """
+    def test_func(self):
+        user = self.request.user
+        return user.is_active and user.role == 'admin'

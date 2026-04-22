@@ -196,3 +196,42 @@ class ReservationForm(forms.ModelForm):
             instance.save()
 
         return instance
+
+
+class ReservationFilterForm(forms.Form):
+    """F-21: filter form for all-reservation list"""
+
+    date_from = forms.DateField(
+        label='date_from',
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type':  'date',
+            'class': 'form-control',
+        }),
+    )
+
+    date_to = forms.DateField(
+        label='date_to',
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type':  'date',
+            'class': 'form-control',
+        }),
+    )
+
+    room = forms.IntegerField(
+        label='room',
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+        }),
+    )
+
+    user = forms.CharField(
+        label='user',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '',
+        }),
+    )
