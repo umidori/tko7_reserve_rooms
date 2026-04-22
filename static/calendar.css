@@ -33,6 +33,36 @@
 }
 
 
+/* ===== 会議室フィルタードロップダウン ===== */
+.filter-select {
+    height: 36px;
+    padding: 0 28px 0 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23555' d='M6 8L0 0h12z'/%3E%3C/svg%3E") no-repeat right 10px center;
+    background-size: 10px 6px;
+    appearance: none;
+    -webkit-appearance: none;
+    color: #333;
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    margin-right: 8px;
+    min-width: 130px;
+}
+
+.filter-select:hover {
+    background-color: #eef2f7;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #3182CE;
+    box-shadow: 0 0 0 2px rgba(49,130,206,0.2);
+}
+
+
 /* ===== 「•••」メニューボタン ===== */
 .dots-btn {
     width: 40px;
@@ -156,6 +186,8 @@
     padding: 1px 3px;
     height: 22px;
     vertical-align: top;
+    /* rowspan使用時に高さが自然に伸びるよう min-height で制御 */
+    min-height: 22px;
 }
 
 
@@ -191,14 +223,18 @@
     background-color: #3182CE;
     color: #fff;
     border-radius: 4px;
-    padding: 1px 6px;
+    padding: 4px 6px;
     font-size: 11px;
     cursor: pointer;
-    height: 20px;
+    /* rowspanでセルが縦に伸びるため、カードもセル全体を満たす */
+    height: 100%;
+    box-sizing: border-box;
     overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    line-height: 18px;
+    /* 長いテキストはカード幅で自然に折り返す（切り捨てではなく改行） */
+    white-space: normal;
+    word-break: break-word;  /* 単語の途中よりも単語境界で折り返しを優先 */
+    overflow-wrap: break-word;
+    line-height: 1.4;
 }
 
 .reservation-card:hover {
