@@ -338,31 +338,28 @@
 }
 
 
-/* ===== カレンダーリンク ===== */
-.btn-calendar-link {
-    display: inline-block;
-    padding: 5px 12px;
-    border: 1px solid #3182CE;
-    border-radius: 6px;
-    color: #3182CE;
-    font-size: 12px;
-    font-family: 'Segoe UI', sans-serif;
+/* ===== 会議室名リンク（クリックで日次カレンダーへ遷移） ===== */
+.room-name-link {
+    font-weight: 600;
+    color: #2c7a9b;
     text-decoration: none;
-    white-space: nowrap;
-    transition: background-color 0.15s;
+    transition: color 0.15s;
 }
 
-.btn-calendar-link:hover {
-    background-color: #ebf4ff;
+.room-name-link:hover {
+    color: #1a5a75;
+    text-decoration: underline;
 }
 
-.row-inactive .btn-calendar-link {
-    border-color: #ccc;
+/* 利用停止中の行はリンク色もグレー */
+.row-inactive .room-name-link {
     color: #aaa;
+    font-weight: 600;
 }
 
-.row-inactive .btn-calendar-link:hover {
-    background-color: #f5f5f5;
+.row-inactive .room-name-link:hover {
+    color: #888;
+    text-decoration: underline;
 }
 
 

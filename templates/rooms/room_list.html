@@ -106,15 +106,17 @@
                     <th>設備</th>
                     <th>建物／階</th>
                     <th class="center">利用状況</th>
-                    <th class="center">カレンダー</th>
                 </tr>
             </thead>
             <tbody>
                 {% for room in rooms %}
                 <tr class="{% if not room.is_active %}row-inactive{% endif %}">
 
-                    <!-- 会議室名 -->
-                    <td><strong>{{ room.name }}</strong></td>
+                    <!-- 会議室名（クリックで日次カレンダーへ遷移） -->
+                    <td>
+                        <a href="/calendar/?filter=all&room_id={{ room.id }}"
+                           class="room-name-link">{{ room.name }}</a>
+                    </td>
 
                     <!-- 収容人数 -->
                     <td class="center">{{ room.capacity }}名</td>
@@ -142,16 +144,10 @@
                         {% endif %}
                     </td>
 
-                    <!-- カレンダーリンク -->
-                    <td class="center">
-                        <a href="/calendar/?tab=all&room_id={{ room.id }}"
-                           class="btn-calendar-link">カレンダーを見る</a>
-                    </td>
-
                 </tr>
                 {% empty %}
                 <tr class="empty-row">
-                    <td colspan="6">条件に一致する会議室が見つかりませんでした</td>
+                    <td colspan="5">条件に一致する会議室が見つかりませんでした</td>
                 </tr>
                 {% endfor %}
             </tbody>
