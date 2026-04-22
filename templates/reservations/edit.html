@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>予約編集</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'reservations.css' %}">
+</head>
+<body>
+
+<div class="header">
+    <div class="logo">
+        <img src="{% static 'bold-logo.webp' %}" alt="logo">
+        <span>社内会議室予約システム：予約編集</span>
+    </div>
+
+    <div class="top-links">
+        <a href="{% url 'calendar' %}">日次カレンダーに戻る</a>
+        <span>|</span>
+        <form method="post" action="{% url 'logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">ログアウト</button>
+        </form>
+    </div>
+</div>
+
+<div class="page">
+
+  <div class="page-title">
+    予約編集モード
+  </div>
+
+  <div class="section">
+    <div class="section-title">会議室情報</div>
+    <div class="section-body">
+
+      <div class="form-row">
+        <div class="label">会議室</div>
+        <div class="input short">
+          <input type="text" class="form-control" value="{{ reservation.room.name }}" disabled>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="label">建物／階</div>
+        <div class="input short">
+          <input
+            type="text"
+            class="form-control"
+            value="{% if reservation.room.building %}{{ reservation.room.building.name }}{% endif %}{% if reservation.room.floor %}／{{ reservation.room.floor }}階{% endif %}"
+            disabled>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="label">収容人数</div>
+        <div class="input short">
+          <input type="text" class="form-control" value="{{ reservation.room.capacity }}名" disabled>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="label">設備</div>
+        <div class="input short">
+          <input
+            type="text"
+            class="form-control"
+            value="{% for facility in reservation.room.facilities.all %}{{ facility.name }}{% if not forloop.last %}、{% endif %}{% empty %}-{% endfor %}"
+            disabled>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="section">
+      <div class="section-title">予約日時</div>
+      <div class="section-body">
+
+        <div class="form-row">
+          <div class="label">日付</div>
+          <div class="input short">{{ form.reserve_date }}</div>
+        </div>
+
+        <div class="form-row double">
+          <div class="pair">
+            <div class="label">開始時刻</div>
+            <div class="input short">{{ form.start_time }}</div>
+          </div>
+
+          <div class="pair">
+            <div class="label">終了時刻</div>
+            <div class="input short">{{ form.end_time }}</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">予約内容</div>
+      <div class="section-body">
+
+        <div class="form-row">
+          <div class="label">件名</div>
+          <div class="input wide">{{ form.title }}</div>
+        </div>
+
+        <div class="form-row">
+          <div class="label">参加者名</div>
+          <div class="input wide">{{ form.participants }}</div>
+        </div>
+
+        <div class="form-row">
+          <div class="label">備考</div>
+          <div class="input wide">{{ form.notes }}</div>
+        </div>
+
+      </div>
+    </div>
+
+    {% if form.non_field_errors %}
+      <div class="error-box">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <div class="actions">
+      <button type="submit" class="btn-primary">保存する</button>
+      <a href="{% url 'reservation_detail' reservation.pk %}" class="btn-secondary btn-cancel-reservation">
+        編集をキャンセル
+      </a>
+    </div>
+
+  </form>
+</div>
+<script src="{% static 'reservations.js' %}"></script>
+</body>
+</html>

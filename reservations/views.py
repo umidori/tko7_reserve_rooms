@@ -1,14 +1,18 @@
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.http import HttpResponse
-from django.views.generic import TemplateView, CreateView, ListView
+from django.views.generic import TemplateView, CreateView, ListView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from datetime import date, datetime, timedelta
-from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.timezone import localtime
+from django.urls import reverse
 
-from .models import Room, Reservation, DepartmentRoom
+from .models import Room, Reservation
 from .forms import ReservationForm
 from accounts.models import Department
+from django.views.generic import DetailView
 
 
 def home(request):
@@ -129,49 +133,6 @@ class CalendarView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class ReservationCreateView(CreateView):
-    model = Reservation
-    form_class = ReservationForm
-    template_name = 'reservations/create.html'
-    success_url = reverse_lazy('calendar')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        room_id = self.request.GET.get('room')
-        selected_room = None
-        if room_id:
-            try:
-                selected_room = Room.objects.get(id=room_id)
-            except Room.DoesNotExist:
-                selected_room = None
-        context['selected_room'] = selected_room
-        return context
-
-    def get_initial(self):
-        initial = super().get_initial()
-
-        room_id = self.request.GET.get('room')
-        if room_id:
-            initial['room'] = room_id
-
-        date_str = self.request.GET.get('date')
-        time_str = self.request.GET.get('time')
-        if date_str and time_str:
-            try:
-                start_at = datetime.strptime(date_str + ' ' + time_str, '%Y-%m-%d %H:%M')
-                end_at   = start_at + timedelta(minutes=30)
-                initial['start_at'] = start_at
-                initial['end_at']   = end_at
-            except ValueError:
-                pass
-
-        return initial
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
-
-
 # F-06
 class MyReservationListView(LoginRequiredMixin, ListView):
     model = Reservation
@@ -214,3 +175,86 @@ class MyReservationListView(LoginRequiredMixin, ListView):
             .count()
         )
         return context
+
+
+# F-09
+class ReservationCreateView(CreateView):
+    model = Reservation
+    form_class = ReservationForm
+    template_name = 'reservations/create.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        room_id = self.request.GET.get('room')
+        selected_room = None
+        if room_id:
+            try:
+                selected_room = Room.objects.get(id=room_id)
+            except Room.DoesNotExist:
+                selected_room = None
+        context['selected_room'] = selected_room
+        return context
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        room_id = self.request.GET.get('room')
+        if room_id:
+            initial['room'] = room_id
+
+        date_str = self.request.GET.get('date')
+        time_str = self.request.GET.get('time')
+        if date_str and time_str:
+            try:
+                start_at = datetime.strptime(date_str + ' ' + time_str, '%Y-%m-%d %H:%M')
+                end_at   = start_at + timedelta(minutes=30)
+                initial['start_at'] = start_at
+                initial['end_at']   = end_at
+            except ValueError:
+                pass
+
+        return initial
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        response = super().form_valid(form)
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse('reservation_detail', kwargs={'pk': self.object.pk})
+
+# F-10
+class ReservationDetailView(LoginRequiredMixin, DetailView):
+    model = Reservation
+    template_name = 'reservations/detail.html'
+    context_object_name = 'reservation'
+
+
+class ReservationUpdateView(LoginRequiredMixin, UpdateView):
+    model = Reservation
+    form_class = ReservationForm
+    template_name = 'reservations/edit.html'
+    context_object_name = 'reservation'
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['room'].disabled = True
+        return form
+
+    def get_success_url(self):
+        return reverse('reservation_detail', kwargs={'pk': self.object.pk})
+
+
+@require_POST
+@login_required
+def reservation_cancel(request, pk):
+    reservation = get_object_or_404(Reservation, pk=pk)
+
+    # 必要なら権限制御
+    if reservation.user != request.user:
+        return redirect('calendar')
+
+    reservation.is_cancelled = True
+    reservation.save()
+
+    return redirect('calendar')

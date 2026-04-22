@@ -352,3 +352,100 @@ textarea::placeholder {
     max-width: 320px;
   }
 }
+
+.no-resize {
+  resize: none;
+  overflow-y: auto;
+}
+
+.btn-cancel-reservation {
+  color: #ff3b30;   /* 赤文字 */
+}
+
+.btn-cancel-reservation {
+  color: #ff3b30;
+}
+
+.btn-cancel-reservation:hover {
+  color: #d70015;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-overlay[hidden] {
+  display: none !important;
+}
+
+.cancel-modal {
+  width: 520px;
+  max-width: calc(100% - 32px);
+  background: #efe3b9;
+  border: 1px solid #8d7f55;
+  border-radius: 24px;
+  padding: 26px 28px 20px;
+  box-sizing: border-box;
+}
+
+.cancel-modal-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #5f5850;
+  margin-bottom: 22px;
+}
+
+.cancel-modal-message {
+  font-size: 18px;
+  line-height: 1.7;
+  color: #5f5850;
+  margin-bottom: 26px;
+}
+
+.cancel-modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.modal-btn {
+  min-width: 180px;
+  height: 50px;
+  border-radius: 10px;
+  border: 1px solid #cfcfcf;
+
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.modal-btn-secondary {
+  background: #ffffff;
+  color: #666666;
+}
+
+.modal-btn-danger {
+  background: #b8322d;
+  color: #ffffff;
+  border-color: #9f2b27;
+}
+
+.modal-btn-danger:hover {
+  background: #a02b26;
+}
+
+.modal-btn-secondary:hover {
+  background: #f5f5f5;
+}
