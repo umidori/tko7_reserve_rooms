@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from .models import Room, Reservation
 from datetime import datetime, timedelta
 
@@ -106,11 +107,11 @@ class ReservationForm(forms.ModelForm):
                 'class': 'form-control',
             }),
             'participants': forms.Textarea(attrs={
-                'class': 'form-control',
+                'class': 'form-control no-resize',
                 'rows': 3,
             }),
             'notes': forms.Textarea(attrs={
-                'class': 'form-control',
+                'class': 'form-control no-resize',
                 'rows': 4,
             }),
         }
@@ -119,18 +120,25 @@ class ReservationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if self.instance and self.instance.pk:
-            self.fields['reserve_date'].initial = self.instance.start_at.date()
-            self.fields['start_time'].initial = self.instance.start_at.strftime('%H:%M')
-            self.fields['end_time'].initial = self.instance.end_at.strftime('%H:%M')
+            local_start_at = timezone.localtime(self.instance.start_at)
+            local_end_at = timezone.localtime(self.instance.end_at)
+
+            self.fields['reserve_date'].initial = local_start_at.date()
+            self.fields['start_time'].initial = local_start_at.strftime('%H:%M')
+            self.fields['end_time'].initial = local_end_at.strftime('%H:%M')
         else:
             start_at = self.initial.get('start_at')
             end_at = self.initial.get('end_at')
 
             if start_at:
+                if timezone.is_aware(start_at):
+                    start_at = timezone.localtime(start_at)
                 self.fields['reserve_date'].initial = start_at.date()
                 self.fields['start_time'].initial = start_at.strftime('%H:%M')
 
             if end_at:
+                if timezone.is_aware(end_at):
+                    end_at = timezone.localtime(end_at)
                 self.fields['end_time'].initial = end_at.strftime('%H:%M')
 
     def clean(self):
@@ -152,6 +160,10 @@ class ReservationForm(forms.ModelForm):
             f'{reserve_date} {end_time}',
             '%Y-%m-%d %H:%M'
         )
+
+        tz = timezone.get_current_timezone()
+        start = timezone.make_aware(start, tz)
+        end = timezone.make_aware(end, tz)
 
         cleaned_data['start_at'] = start
         cleaned_data['end_at'] = end

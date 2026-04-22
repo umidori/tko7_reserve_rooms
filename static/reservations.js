@@ -34,3 +34,25 @@ document.addEventListener('DOMContentLoaded', function () {
   // 初期反映
   updateSelectedRoom();
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const openCancelModalBtn = document.getElementById('openCancelModal');
+    const closeCancelModalBtn = document.getElementById('closeCancelModal');
+    const cancelModal = document.getElementById('cancelModal');
+
+    if (openCancelModalBtn && closeCancelModalBtn && cancelModal) {
+        openCancelModalBtn.addEventListener('click', function () {
+            cancelModal.hidden = false;
+        });
+
+        closeCancelModalBtn.addEventListener('click', function () {
+            cancelModal.hidden = true;
+        });
+
+        cancelModal.addEventListener('click', function (event) {
+            if (event.target === cancelModal) {
+                cancelModal.hidden = true;
+            }
+        });
+    }
+});
