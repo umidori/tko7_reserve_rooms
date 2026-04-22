@@ -1,6 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
+from .models import User, Department
+
+
 class EmailAuthenticationForm(AuthenticationForm):
     error_messages = {
         'invalid_login': 'ユーザーIDまたはパスワードが正しくありません。',
@@ -21,3 +24,80 @@ class EmailAuthenticationForm(AuthenticationForm):
             'required': 'このフィールドは必須です。',
         }
     )
+
+
+# ─────────────────────────────────────────────────────────────
+# F-15: ユーザー追加フォーム
+# ─────────────────────────────────────────────────────────────
+class UserCreateForm(forms.ModelForm):
+    """ユーザー手動追加フォーム（F-15）
+
+    - login_id / name / role / department を入力
+    - パスワードはビュー側で set_password('Bold1234') を呼び出す
+    """
+
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all().order_by('name'),
+        required=False,
+        empty_label='（なし）',
+        label='所属',
+    )
+
+    class Meta:
+        model = User
+        fields = ['login_id', 'name', 'role', 'department']
+        labels = {
+            'login_id':   'ユーザーID',
+            'name':       '氏名',
+            'role':       '権限',
+            'department': '所属',
+        }
+        widgets = {
+            'login_id': forms.TextInput(attrs={
+                'placeholder': '半角英数字 50文字以内',
+                'autocomplete': 'off',
+            }),
+            'name': forms.TextInput(attrs={
+                'placeholder': '氏名を入力してください。',
+            }),
+            'role': forms.Select(),
+        }
+
+    def clean_login_id(self):
+        login_id = self.cleaned_data.get('login_id', '').strip()
+        if User.objects.filter(login_id=login_id).exists():
+            raise forms.ValidationError('このユーザーIDはすでに使用されています。')
+        return login_id
+
+
+# ─────────────────────────────────────────────────────────────
+# F-15: ユーザー編集フォーム
+# ─────────────────────────────────────────────────────────────
+class UserUpdateForm(forms.ModelForm):
+    """ユーザー編集フォーム（F-15）
+
+    - login_id は変更不可（フィールドに含めない）
+    - name / role / department のみ変更可
+    """
+
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all().order_by('name'),
+        required=False,
+        empty_label='（なし）',
+        label='所属',
+    )
+
+    class Meta:
+        model = User
+        fields = ['name', 'role', 'department']
+        labels = {
+            'name':       '氏名',
+            'role':       '権限',
+            'department': '所属',
+        }
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'placeholder': '氏名を入力してください。',
+            }),
+            'role': forms.Select(),
+        }
