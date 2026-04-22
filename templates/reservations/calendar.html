@@ -22,14 +22,26 @@
     <!-- ツールバー -->
     <div class="calendar-toolbar">
         <div class="toolbar-left">
-            <a href="?date={{ today|date:'Y-m-d' }}&filter={{ filter_mode }}" class="nav-btn">今日</a>
-            <a href="?date={{ prev_date|date:'Y-m-d' }}&filter={{ filter_mode }}" class="nav-btn">←</a>
-            <a href="?date={{ next_date|date:'Y-m-d' }}&filter={{ filter_mode }}" class="nav-btn">→</a>
+            <a href="?date={{ today|date:'Y-m-d' }}&filter={{ filter_value }}" class="nav-btn">今日</a>
+            <a href="?date={{ prev_date|date:'Y-m-d' }}&filter={{ filter_value }}" class="nav-btn">←</a>
+            <a href="?date={{ next_date|date:'Y-m-d' }}&filter={{ filter_value }}" class="nav-btn">→</a>
         </div>
         <div class="toolbar-center">
             <span class="current-date">{{ target_date|date:"n月j日（D）" }}</span>
         </div>
         <div class="toolbar-right">
+            <!-- 会議室フィルタードロップダウン -->
+            <select class="filter-select" id="roomFilterSelect"
+                    data-date="{{ target_date|date:'Y-m-d' }}"
+                    onchange="location.href='?date='+this.dataset.date+'&filter='+this.value">
+                <option value="all" {% if filter_value == 'all' %}selected{% endif %}>全会議室</option>
+                {% for dept in departments %}
+                <option value="{{ dept.id }}"
+                        {% if filter_value == dept.id|stringformat:'s' %}selected{% endif %}>
+                    {{ dept.name }}
+                </option>
+                {% endfor %}
+            </select>
             <button class="dots-btn" onclick="toggleNavMenu(event)">•••</button>
             <div class="nav-dropdown" id="navMenu">
                 <a href="#">会議室一覧</a>
@@ -56,9 +68,7 @@
                     {% for room in rooms %}
                     <th class="room-header-cell">
                         <div class="room-card">{{ room.name }}</div>
-                        {% if room.building %}
-                        <div class="room-building">{{ room.building }}</div>
-                        {% endif %}
+                        <div class="room-building">{{ room.building|default:"―" }}</div>
                     </th>
                     {% endfor %}
                 </tr>
@@ -80,10 +90,12 @@
                                  data-start="{{ cell.reservation.start_at|time:'H:i' }}"
                                  data-end="{{ cell.reservation.end_at|time:'H:i' }}"
                                  onclick="showReservationModal(this)">
-                                {{ cell.reservation.reserved_by }}｜{{ cell.reservation.title|truncatechars:10 }}
+                                {{ cell.reservation.reserved_by }}｜{{ cell.reservation.title }}
                             </div>
                         {% else %}
-                            <div class="empty-cell" onclick="location.href='#'">
+                            <div class="empty-cell"
+                                 data-url="{% url 'reservation_create' %}?room={{ cell.room.id }}&amp;date={{ target_date|date:'Y-m-d' }}&amp;time={{ row.slot|time:'H:i' }}"
+                                 onclick="location.href=this.dataset.url">
                                 <span class="plus-icon">＋予約</span>
                             </div>
                         {% endif %}
