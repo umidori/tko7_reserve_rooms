@@ -36,4 +36,7 @@ urlpatterns = [
 
     # 管理パネル（会議室マスタ管理など）
     path('admin-panel/', include('admin_panel.urls')),
+
+    # F-07・F-08: 会議室一覧・絞り込み検索
+    path('rooms/', include('rooms.urls')),
 ]
