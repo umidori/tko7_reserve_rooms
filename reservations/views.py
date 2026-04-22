@@ -40,19 +40,35 @@ class CalendarView(LoginRequiredMixin, TemplateView):
 
         rooms = Room.objects.none()
 
-        if filter_value != 'all':
+        # room_id 指定がある場合はその会議室1件のみ表示（S-04 会議室名クリック時）
+        room_id_str = self.request.GET.get('room_id')
+        room_id = None
+        if room_id_str:
             try:
-                dept_id = int(filter_value)
-                rooms = Room.objects.filter(
-                    is_active=True,
-                    departmentroom__department_id=dept_id,
-                ).order_by('name')
+                room_id = int(room_id_str)
             except (ValueError, TypeError):
-                filter_value = 'all'
+                room_id = None
 
-        if filter_value == 'all' or not rooms.exists():
-            rooms = Room.objects.filter(is_active=True).order_by('name')
+        if room_id:
+            rooms = Room.objects.filter(id=room_id, is_active=True)
+            if not rooms.exists():
+                # 該当なし or 利用停止中 → 全会議室にフォールバック
+                rooms = Room.objects.filter(is_active=True).order_by('name')
             filter_value = 'all'
+        else:
+            if filter_value != 'all':
+                try:
+                    dept_id = int(filter_value)
+                    rooms = Room.objects.filter(
+                        is_active=True,
+                        departmentroom__department_id=dept_id,
+                    ).order_by('name')
+                except (ValueError, TypeError):
+                    filter_value = 'all'
+
+            if filter_value == 'all' or not rooms.exists():
+                rooms = Room.objects.filter(is_active=True).order_by('name')
+                filter_value = 'all'
 
         slots = []
         current = datetime.combine(target_date, datetime.min.time())
