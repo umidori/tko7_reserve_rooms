@@ -3,8 +3,33 @@ function toggleNavMenu(e) {
     e.stopPropagation();
     document.getElementById('navMenu').classList.toggle('open');
 }
-document.addEventListener('click', function () {
-    document.getElementById('navMenu').classList.remove('open');
+
+function toggleAdminSubmenu(e) {
+    // 親メニューへの伝播を止めてメニューが閉じないようにする
+    e.stopPropagation();
+    const submenu = document.getElementById('adminSubmenu');
+    const arrow   = document.getElementById('adminArrow');
+    if (submenu) submenu.classList.toggle('open');
+    if (arrow)   arrow.classList.toggle('open');
+}
+
+// メニュー外クリック時のみ閉じる（contains チェックで内部クリックを除外）
+document.addEventListener('click', function (e) {
+    const navMenu   = document.getElementById('navMenu');
+    const dotsBtn   = document.querySelector('.dots-btn');
+
+    // クリック対象がメニュー内・dots-btn内であれば何もしない
+    if ((navMenu  && navMenu.contains(e.target)) ||
+        (dotsBtn  && dotsBtn.contains(e.target))) {
+        return;
+    }
+
+    // メニュー外クリック → すべて閉じる
+    if (navMenu) navMenu.classList.remove('open');
+    const submenu = document.getElementById('adminSubmenu');
+    const arrow   = document.getElementById('adminArrow');
+    if (submenu) submenu.classList.remove('open');
+    if (arrow)   arrow.classList.remove('open');
 });
 
 /* ===== 予約詳細モーダル ===== */

@@ -93,7 +93,7 @@
     box-shadow: 0 4px 16px rgba(0,0,0,0.15);
     min-width: 150px;
     z-index: 100;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .nav-dropdown.open {
@@ -124,6 +124,88 @@
 .nav-dropdown form {
     margin: 0;
     padding: 0;
+}
+
+/* ===== 管理サブメニュー（左フライアウト） ===== */
+
+/* overflow:visible にしたので角丸を先頭・末尾アイテムに個別付与 */
+.nav-dropdown > a:first-child {
+    border-radius: 10px 10px 0 0;
+}
+.nav-dropdown > form:last-child .logout-btn {
+    border-radius: 0 0 10px 10px;
+}
+
+.nav-submenu-wrapper {
+    position: relative;
+    border-top: 1px solid #eef2f7;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.nav-submenu-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 11px 20px;
+    color: #333;
+    font-size: 14px;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Segoe UI', sans-serif;
+    box-sizing: border-box;
+}
+
+.nav-submenu-trigger:hover {
+    background-color: #f4f6f9;
+}
+
+.submenu-arrow {
+    font-size: 10px;
+    color: #999;
+    display: inline-block;
+    transition: transform 0.18s;
+}
+
+.submenu-arrow.open {
+    transform: rotate(90deg);
+}
+
+/* 左側フライアウト */
+.nav-submenu {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 100%;
+    margin-right: 8px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    min-width: 160px;
+    z-index: 101;
+    overflow: hidden;
+}
+
+.nav-submenu.open {
+    display: block;
+}
+
+.nav-submenu a {
+    display: block;
+    padding: 11px 20px;
+    color: #2c7a9b;
+    font-size: 13px;
+    text-decoration: none;
+    font-family: 'Segoe UI', sans-serif;
+    background: none;
+    border: none;
+    box-sizing: border-box;
+}
+
+.nav-submenu a:hover {
+    background-color: #edf4ff;
 }
 
 
