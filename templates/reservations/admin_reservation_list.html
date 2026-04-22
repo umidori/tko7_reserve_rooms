@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>全予約管理 | 会議室予約システム</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'common.css' %}">
+    <link rel="stylesheet" href="{% static 'admin_reservation_list.css' %}">
+</head>
+<body>
+
+<!-- ロゴ（「戻る｜ログアウト」を右端に配置） -->
+<div class="logo">
+    <div style="display:flex; align-items:center; gap:15px;">
+        <img src="{% static 'bold-logo.webp' %}" alt="logo">
+        <span>社内会議室予約システム：全予約管理</span>
+    </div>
+    <div class="top-links">
+        <a href="{% url 'home' %}">戻る</a>
+        <span class="sep">｜</span>
+        <form method="post" action="{% url 'logout' %}" style="margin:0;padding:0;">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">ログアウト</button>
+        </form>
+    </div>
+</div>
+
+<!-- メインコンテナ -->
+<div class="calendar-container">
+
+    <!-- ツールバー -->
+    <div class="calendar-toolbar">
+        <div class="toolbar-left">
+            <span class="page-title">全予約管理</span>
+        </div>
+    </div>
+
+    <!-- 絞り込み条件カード -->
+    <div class="filter-card">
+        <div class="filter-card-header">絞り込み条件</div>
+        <div class="filter-card-body">
+            <form method="get" action="">
+                <div class="filter-grid">
+
+                    <!-- 日付 From -->
+                    <div class="filter-label">日付（From）</div>
+                    <div class="filter-input">
+                        <input type="date" name="date_from"
+                               value="{{ date_from }}">
+                    </div>
+
+                    <!-- 日付 To -->
+                    <div class="filter-label">日付（From）</div>
+                    <div class="filter-input">
+                        <input type="date" name="date_to"
+                               value="{{ date_to }}">
+                    </div>
+
+                    <!-- 会議室 -->
+                    <div class="filter-label">会議室</div>
+                    <div class="filter-input">
+                        <select name="room">
+                            <option value="">（すべて）</option>
+                            {% for r in rooms %}
+                            <option value="{{ r.id }}"
+                                {% if request.GET.room == r.id|stringformat:"s" %}selected{% endif %}>
+                                {{ r.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- 予約者名 -->
+                    <div class="filter-label">予約者名</div>
+                    <div class="filter-input">
+                        <input type="text" name="user"
+                               value="{{ request.GET.user }}"
+                               placeholder="例）山田">
+                    </div>
+
+                </div><!-- /.filter-grid -->
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn-search">検索</button>
+                    <a href="{% url 'all_reservation_list' %}" class="btn-clear">クリア</a>
+                </div>
+            </form>
+        </div>
+    </div><!-- /.filter-card -->
+
+    <!-- 検索結果件数 -->
+    <div class="result-count">
+        検索結果&nbsp;&nbsp;{{ total_count }}件
+        {% if date_from_display or date_to_display %}
+        （{{ date_from_display|default:"-" }}〜{{ date_to_display|default:"-" }}）
+        {% endif %}
+    </div>
+
+    <!-- 予約一覧テーブル -->
+    <div class="admin-card">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>予約日時</th>
+                    <th>会議室名</th>
+                    <th>件名</th>
+                    <th>予約者</th>
+                    <th>ステータス</th>
+                    <th>登録日時</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rsv in reservations %}
+                <tr>
+                    <td>
+                        {{ rsv.start_at|date:"Y/m/d" }}&nbsp;{{ rsv.start_at|time:"H:i" }}
+                    </td>
+                    <td>{{ rsv.room.name }}</td>
+                    <td>{{ rsv.title }}</td>
+                    <td>{{ rsv.user.name }}</td>
+                    <td>
+                        {% if rsv.is_cancelled %}
+                            <span class="badge badge-cancelled">キャンセル済</span>
+                        {% elif rsv.end_at > now %}
+                            <span class="badge badge-reserved">予約済み</span>
+                        {% else %}
+                            <span class="badge badge-ended">終了</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ rsv.created_at|date:"m/d" }}&nbsp;{{ rsv.created_at|time:"H:i" }}</td>
+                    <td>
+                        <a href="{% url 'reservation_detail' rsv.id %}"
+                           class="link-detail">詳細・編集 &gt;</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr class="empty-row">
+                    <td colspan="7">該当する予約はありません。</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div><!-- /.admin-card -->
+
+</div><!-- /.calendar-container -->
+
+</body>
+</html>

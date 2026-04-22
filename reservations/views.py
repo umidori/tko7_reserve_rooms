@@ -10,8 +10,9 @@ from django.utils.timezone import localtime
 from django.urls import reverse
 
 from .models import Room, Reservation
-from .forms import ReservationForm
+from .forms import ReservationForm, ReservationFilterForm
 from accounts.models import Department
+from accounts.mixins import AdminRequiredMixin
 from django.views.generic import DetailView
 
 
@@ -40,7 +41,6 @@ class CalendarView(LoginRequiredMixin, TemplateView):
 
         rooms = Room.objects.none()
 
-        # room_id 指定がある場合はその会議室1件のみ表示（S-04 会議室名クリック時）
         room_id_str = self.request.GET.get('room_id')
         room_id = None
         if room_id_str:
@@ -52,7 +52,6 @@ class CalendarView(LoginRequiredMixin, TemplateView):
         if room_id:
             rooms = Room.objects.filter(id=room_id, is_active=True)
             if not rooms.exists():
-                # 該当なし or 利用停止中 → 全会議室にフォールバック
                 rooms = Room.objects.filter(is_active=True).order_by('name')
             filter_value = 'all'
         else:
@@ -219,9 +218,10 @@ class ReservationCreateView(CreateView):
         form.instance.user = self.request.user
         response = super().form_valid(form)
         return super().form_valid(form)
-    
+
     def get_success_url(self):
         return reverse('reservation_detail', kwargs={'pk': self.object.pk})
+
 
 # F-10
 class ReservationDetailView(LoginRequiredMixin, DetailView):
@@ -250,7 +250,6 @@ class ReservationUpdateView(LoginRequiredMixin, UpdateView):
 def reservation_cancel(request, pk):
     reservation = get_object_or_404(Reservation, pk=pk)
 
-    # 必要なら権限制御
     if reservation.user != request.user:
         return redirect('calendar')
 
@@ -258,3 +257,75 @@ def reservation_cancel(request, pk):
     reservation.save()
 
     return redirect('calendar')
+
+
+# F-21
+class AllReservationListView(AdminRequiredMixin, ListView):
+    """F-21: all reservation list / management (S-11)"""
+    model = Reservation
+    template_name = 'reservations/admin_reservation_list.html'
+    context_object_name = 'reservations'
+
+    def get_queryset(self):
+        qs = (
+            Reservation.objects
+            .select_related('room', 'user')
+            .order_by('-start_at')
+        )
+
+        date_from_str = self.request.GET.get('date_from', '').strip()
+        date_to_str   = self.request.GET.get('date_to', '').strip()
+        room_id_str   = self.request.GET.get('room', '').strip()
+        user_name     = self.request.GET.get('user', '').strip()
+
+        if date_from_str:
+            try:
+                target = date.fromisoformat(date_from_str)
+                qs = qs.filter(start_at__date__gte=target)
+            except ValueError:
+                pass
+
+        if date_to_str:
+            try:
+                target = date.fromisoformat(date_to_str)
+                qs = qs.filter(start_at__date__lte=target)
+            except ValueError:
+                pass
+
+        if room_id_str:
+            try:
+                qs = qs.filter(room_id=int(room_id_str))
+            except (ValueError, TypeError):
+                pass
+
+        if user_name:
+            qs = qs.filter(user__name__icontains=user_name)
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        form  = ReservationFilterForm(self.request.GET or None)
+        rooms = Room.objects.order_by('name')
+
+        date_from_str = self.request.GET.get('date_from', '').strip()
+        date_to_str   = self.request.GET.get('date_to', '').strip()
+
+        def fmt_date_display(date_str):
+            try:
+                return date.fromisoformat(date_str).strftime('%Y/%m/%d')
+            except (ValueError, AttributeError):
+                return ''
+
+        context.update({
+            'form':              form,
+            'rooms':             rooms,
+            'total_count':       context['reservations'].count(),
+            'date_from':         date_from_str,
+            'date_to':           date_to_str,
+            'date_from_display': fmt_date_display(date_from_str),
+            'date_to_display':   fmt_date_display(date_to_str),
+            'now':               timezone.now(),
+        })
+        return context
