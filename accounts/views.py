@@ -2,8 +2,8 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.views import LoginView
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, ListView, UpdateView
 
@@ -20,6 +20,34 @@ logger = logging.getLogger(__name__)
 class CustomLoginView(LoginView):
     template_name = 'login.html'
     authentication_form = EmailAuthenticationForm
+
+
+# ─────────────────────────────────────────────────────────────
+# ヘルパー：一覧テンプレート用の共通コンテキスト
+# （form_invalid 時にモーダルを開いた状態で一覧を再描画するために使用）
+# ─────────────────────────────────────────────────────────────
+def _user_list_context(request, **extra):
+    qs = User.objects.select_related('department').order_by('login_id')
+    q = request.GET.get('q', '').strip()
+    if q:
+        qs = qs.filter(name__icontains=q)
+    default_form = UserCreateForm()
+    ctx = {
+        'users': qs,
+        'q': q,
+        'total_count': User.objects.count(),
+        # モーダル内で描画するフォーム（エラーがない場合は空の追加フォーム）
+        'modal_form': default_form,
+        'modal_open': False,
+        'modal_mode': 'create',
+        'form_action_url': None,
+        'edit_user_id': None,
+        'edit_user_login_id': '',
+        # _user_list_context 経由の再描画ではページネーションなし
+        'is_paginated': False,
+    }
+    ctx.update(extra)
+    return ctx
 
 
 # ─────────────────────────────────────────────────────────────
@@ -44,6 +72,13 @@ class UserListView(AdminRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['q'] = self.request.GET.get('q', '')
         context['total_count'] = User.objects.count()
+        # モーダル用（通常表示時は空の追加フォーム）
+        context['modal_form'] = UserCreateForm()
+        context['modal_open'] = False
+        context['modal_mode'] = 'create'
+        context['form_action_url'] = None
+        context['edit_user_id'] = None
+        context['edit_user_login_id'] = ''
         return context
 
 
@@ -51,11 +86,16 @@ class UserListView(AdminRequiredMixin, ListView):
 # F-15: ユーザー追加（管理者専用）
 # ─────────────────────────────────────────────────────────────
 class UserCreateView(AdminRequiredMixin, CreateView):
-    """ユーザーを新規作成する。初期パスワードは 'Bold1234'。"""
+    """ユーザーを新規作成する。初期パスワードは 'Bold1234'。
+    モーダル経由の POST のみ処理。GET は一覧にリダイレクト。
+    """
     model = User
     form_class = UserCreateForm
-    template_name = 'accounts/user_form.html'
     success_url = reverse_lazy('user_admin_list')
+
+    def get(self, request, *args, **kwargs):
+        # モーダル経由でのみ使用するため直接アクセスはリダイレクト
+        return redirect('user_admin_list')
 
     def form_valid(self, form):
         user = form.save(commit=False)
@@ -72,27 +112,32 @@ class UserCreateView(AdminRequiredMixin, CreateView):
 
     def form_invalid(self, form):
         logger.warning("UserCreateForm invalid: errors=%s", form.errors)
-        return super().form_invalid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['is_create'] = True
-        context['page_title'] = 'ユーザーを追加'
-        return context
+        ctx = _user_list_context(
+            self.request,
+            modal_form=form,
+            modal_open=True,
+            modal_mode='create',
+            form_action_url=reverse('user_create'),
+        )
+        return render(self.request, 'accounts/user_list.html', ctx)
 
 
 # ─────────────────────────────────────────────────────────────
 # F-15: ユーザー編集（管理者専用）
 # ─────────────────────────────────────────────────────────────
 class UserUpdateView(AdminRequiredMixin, UpdateView):
-    """ユーザーの name / role / department を編集する（login_id は変更不可）。"""
+    """ユーザーの name / role / department を編集する（login_id は変更不可）。
+    モーダル経由の POST のみ処理。GET は一覧にリダイレクト。
+    """
     model = User
     form_class = UserUpdateForm
-    template_name = 'accounts/user_form.html'
     success_url = reverse_lazy('user_admin_list')
 
     def get_object(self, queryset=None):
         return get_object_or_404(User, pk=self.kwargs['pk'])
+
+    def get(self, request, *args, **kwargs):
+        return redirect('user_admin_list')
 
     def form_valid(self, form):
         user = form.save()
@@ -106,13 +151,17 @@ class UserUpdateView(AdminRequiredMixin, UpdateView):
 
     def form_invalid(self, form):
         logger.warning("UserUpdateForm invalid: errors=%s", form.errors)
-        return super().form_invalid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['is_create'] = False
-        context['page_title'] = 'ユーザーを編集'
-        return context
+        obj = self.get_object()
+        ctx = _user_list_context(
+            self.request,
+            modal_form=form,
+            modal_open=True,
+            modal_mode='edit',
+            edit_user_id=obj.pk,
+            edit_user_login_id=obj.login_id,
+            form_action_url=reverse('user_edit', kwargs={'pk': obj.pk}),
+        )
+        return render(self.request, 'accounts/user_list.html', ctx)
 
 
 # ─────────────────────────────────────────────────────────────

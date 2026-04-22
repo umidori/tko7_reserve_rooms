@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{% static 'common.css' %}">
     <link rel="stylesheet" href="{% static 'room_admin.css' %}">
     <style>
+        /* ── 検索バー ── */
         .search-bar { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
         .search-bar input[type="text"] {
             padding:8px 12px; border:1px solid #ccc; border-radius:8px;
@@ -25,6 +26,7 @@
             text-decoration:none; display:inline-block;
         }
         .btn-clear:hover { background-color:#e0e5ee; }
+        /* ── ユーザー行 ── */
         tr.row-inactive td { color:#bbb; background-color:#fafafa; }
         tr.row-inactive td strong { color:#bbb; }
         .badge-valid   { background-color:#6cc3a0; color:#fff; }
@@ -34,6 +36,7 @@
             border-radius:8px; background:#f5f5f5; color:#ccc; font-size:13px;
             font-family:'Segoe UI',sans-serif; cursor:not-allowed;
         }
+        /* ── ページネーション ── */
         .pagination {
             display:flex; justify-content:flex-end; align-items:center;
             gap:4px; margin-top:16px; font-size:14px; font-family:'Segoe UI',sans-serif;
@@ -45,6 +48,7 @@
         .pagination span.current { background-color:#3182CE; color:#fff; font-weight:600; }
         .pagination a:hover { background-color:#eef2f7; }
         .pagination .disabled { color:#ccc; pointer-events:none; }
+        /* ── フラッシュメッセージ ── */
         .flash-success {
             background-color:#eaf7f0; border:1px solid #6cc3a0; border-radius:8px;
             padding:10px 16px; font-size:14px; color:#2a7a50; margin-bottom:8px;
@@ -53,10 +57,24 @@
             background-color:#fdf2f2; border:1px solid #e74c3c; border-radius:8px;
             padding:10px 16px; font-size:14px; color:#c0392b; margin-bottom:8px;
         }
+        /* ── モーダル内 login_id 表示欄 ── */
+        .login-id-display {
+            padding:7px 10px; background-color:#f0f0f0; border:1px solid #ddd;
+            border-radius:6px; font-size:14px; color:#666;
+            font-family:'Segoe UI',sans-serif; display:inline-block; width:100%;
+            box-sizing:border-box;
+        }
+        /* ── モーダル内 select ── */
+        .modal-box--form .form-table select {
+            width:100%; padding:7px 10px; border:1px solid #ccc; border-radius:6px;
+            font-size:14px; background-color:#eef2f7; box-sizing:border-box;
+            font-family:'Segoe UI',sans-serif; color:#333;
+        }
     </style>
 </head>
 <body>
 
+<!-- ヘッダー -->
 <div class="logo">
     <div style="display:flex; align-items:center; gap:15px;">
         <img src="{% static 'bold-logo.webp' %}" alt="logo">
@@ -72,17 +90,20 @@
     </div>
 </div>
 
+<!-- メインコンテナ -->
 <div class="calendar-container">
 
+    <!-- ツールバー -->
     <div class="calendar-toolbar">
         <div class="toolbar-left">
             <span class="page-title">ユーザー管理</span>
         </div>
         <div class="toolbar-right">
-            <a href="{% url 'user_create' %}" class="btn-add">＋ ユーザーを追加</a>
+            <button class="btn-add" onclick="openUserModal('create')">＋ ユーザーを追加</button>
         </div>
     </div>
 
+    <!-- フラッシュメッセージ -->
     {% if messages %}
     <div style="margin-bottom:12px;">
         {% for message in messages %}
@@ -95,6 +116,7 @@
     </div>
     {% endif %}
 
+    <!-- 検索フォーム -->
     <form method="get" action="">
         <div class="search-bar">
             <input type="text" name="q" value="{{ q }}" placeholder="氏名で検索">
@@ -103,6 +125,7 @@
         </div>
     </form>
 
+    <!-- ユーザー一覧テーブル -->
     <div class="admin-card">
         <div class="list-header">
             全ユーザー {{ total_count }}名
@@ -137,10 +160,21 @@
                     </td>
                     <td class="center">
                         <div class="action-group">
-                            <a href="{% url 'user_edit' user.pk %}" class="btn-action">編集</a>
 
+                            {# F-15: 編集ボタン（モーダルを開く） #}
+                            <button type="button"
+                                    class="btn-action"
+                                    onclick="openUserModal('edit', this)"
+                                    data-user-id="{{ user.pk }}"
+                                    data-login-id="{{ user.login_id }}"
+                                    data-name="{{ user.name|escapejs }}"
+                                    data-role="{{ user.role }}"
+                                    data-department-id="{{ user.department_id|default:'' }}">編集</button>
+
+                            {# F-16: 無効化 / 有効化ボタン #}
                             {% if user.pk == request.user.pk %}
-                                <span class="btn-self-disabled" title="自分自身は操作できません">
+                                <span class="btn-self-disabled"
+                                      title="自分自身は操作できません">
                                     {% if user.is_active %}無効化{% else %}有効化{% endif %}
                                 </span>
                             {% else %}
@@ -150,7 +184,7 @@
                                     {% csrf_token %}
                                     {% if user.is_active %}
                                         <button type="submit" class="btn-action btn-stop"
-                                                onclick="return confirm('「{{ user.name }}」を無効化しますか？')">
+                                                onclick="return confirm('「{{ user.name|escapejs }}」を無効化しますか？')">
                                             無効化
                                         </button>
                                     {% else %}
@@ -160,6 +194,7 @@
                                     {% endif %}
                                 </form>
                             {% endif %}
+
                         </div>
                     </td>
                 </tr>
@@ -172,6 +207,7 @@
         </table>
     </div>
 
+    <!-- ページネーション -->
     {% if is_paginated %}
     <div class="pagination">
         {% if page_obj.has_previous %}
@@ -200,6 +236,124 @@
     </div>
     {% endif %}
 
+</div><!-- /.calendar-container -->
+
+
+<!-- ==========================================================
+     ユーザー追加・編集モーダル（F-15）
+     ========================================================== -->
+<div class="modal-overlay {% if modal_open %}open{% endif %}"
+     id="userFormModal"
+     onclick="closeUserModalOnOverlay(event)">
+    <div class="modal-box modal-box--form">
+
+        <h5 id="userFormTitle">
+            {% if modal_mode == 'edit' %}ユーザーを編集{% else %}ユーザーを追加{% endif %}
+        </h5>
+
+        <form id="userForm"
+              method="post"
+              action="{% if form_action_url %}{{ form_action_url }}{% else %}{% url 'user_create' %}{% endif %}"
+              novalidate>
+            {% csrf_token %}
+
+            {% if modal_form.non_field_errors %}
+            <div class="alert-danger" style="margin-bottom:12px;">
+                {% for error in modal_form.non_field_errors %}
+                    <p style="margin:0;">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <table class="form-table">
+
+                <!-- ユーザーID -->
+                <tr>
+                    <th>ユーザーID <span class="required">*</span></th>
+                    <td>
+                        <!-- create モード: 入力欄 -->
+                        <div id="div-login-id-input"
+                             {% if modal_open and modal_mode == 'edit' %}style="display:none;"{% endif %}>
+                            <input type="text"
+                                   name="login_id"
+                                   id="id_modal_login_id"
+                                   placeholder="半角英数字 50文字以内"
+                                   autocomplete="off"
+                                   maxlength="50"
+                                   value="{{ modal_form.data.login_id|default:'' }}">
+                            {% if modal_open and modal_mode == 'create' %}
+                                {% for e in modal_form.errors.login_id %}
+                                    <div class="error-text">{{ e }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <!-- edit モード: 表示のみ -->
+                        <div id="div-login-id-display"
+                             {% if not modal_open or modal_mode == 'create' %}style="display:none;"{% endif %}>
+                            <span class="login-id-display" id="login-id-text">
+                                {{ edit_user_login_id|default:'' }}
+                            </span>
+                            <div style="font-size:12px;color:#999;margin-top:4px;">
+                                ユーザーIDは変更できません
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- 氏名 -->
+                <tr>
+                    <th>氏名 <span class="required">*</span></th>
+                    <td>
+                        {{ modal_form.name }}
+                        {% for e in modal_form.name.errors %}
+                            <div class="error-text">{{ e }}</div>
+                        {% endfor %}
+                    </td>
+                </tr>
+
+                <!-- 権限 -->
+                <tr>
+                    <th>権限 <span class="required">*</span></th>
+                    <td>
+                        {{ modal_form.role }}
+                        {% for e in modal_form.role.errors %}
+                            <div class="error-text">{{ e }}</div>
+                        {% endfor %}
+                    </td>
+                </tr>
+
+                <!-- 所属 -->
+                <tr>
+                    <th>所属</th>
+                    <td>
+                        {{ modal_form.department }}
+                        {% for e in modal_form.department.errors %}
+                            <div class="error-text">{{ e }}</div>
+                        {% endfor %}
+                    </td>
+                </tr>
+
+            </table>
+
+            <div class="modal-footer" style="margin-top:20px;">
+                <button type="button" class="btn-secondary" onclick="closeUserModal()">キャンセル</button>
+                <button type="submit" id="userFormSubmit" class="btn-submit">
+                    {% if modal_mode == 'edit' %}保存する{% else %}追加{% endif %}
+                </button>
+            </div>
+
+        </form>
+    </div>
 </div>
+
+
+<!-- JS に渡す URL 定数（data 属性経由） -->
+<div id="js-user-urls"
+     data-create-url="{% url 'user_create' %}"
+     data-edit-url-template="{% url 'user_edit' pk=0 %}"
+     style="display:none;"></div>
+
+<script src="{% static 'user_admin.js' %}"></script>
+
 </body>
 </html>
