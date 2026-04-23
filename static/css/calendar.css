@@ -205,7 +205,7 @@
 
 .calendar-cell {
     padding: 1px 3px;
-    min-height: 22px;
+    height: 1px; /* rowspan セルで height:100% を子要素に継承させるハック */
 }
 
 
@@ -236,6 +236,7 @@
 
 /* ===== 予約カード ===== */
 .reservation-card {
+    display: block;
     background-color: #3182CE;
     color: #fff;
     border-radius: 4px;
