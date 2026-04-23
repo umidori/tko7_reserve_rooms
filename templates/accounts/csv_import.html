@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CSVインポート | 会議室予約システム</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'common.css' %}">
+    <link rel="stylesheet" href="{% static 'room_admin.css' %}">
+    <style>
+        /* ── STEP ラベル ── */
+        .step-header {
+            background-color: #3b5ea6;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px 6px 0 0;
+            margin-top: 20px;
+        }
+        .step-body {
+            border: 1px solid #d0d9e8;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            padding: 20px;
+            background: #fff;
+            margin-bottom: 0;
+        }
+        /* ── フォーマット説明 ── */
+        .format-desc {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        .format-desc code {
+            background: #eef2f7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        /* ── ファイル入力欄 ── */
+        .file-input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .file-input-row input[type="file"] {
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 14px;
+            background: #f9f9f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        /* ── プレビューサマリー ── */
+        .preview-summary {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .summary-valid {
+            background: #eaf7f0;
+            border: 1px solid #6cc3a0;
+            border-radius: 6px;
+            padding: 6px 16px;
+            color: #2a7a50;
+            font-weight: 600;
+        }
+        .summary-error {
+            background: #fdf2f2;
+            border: 1px solid #e74c3c;
+            border-radius: 6px;
+            padding: 6px 16px;
+            color: #c0392b;
+            font-weight: 600;
+        }
+        /* ── プレビューテーブル ── */
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .preview-table thead tr {
+            background-color: #3b5ea6;
+            color: #fff;
+        }
+        .preview-table th {
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .preview-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #e8edf5;
+            color: #333;
+        }
+        .preview-table tbody tr:hover { background-color: #f5f8ff; }
+        .preview-table tr.row-error td {
+            background-color: #fff0f0;
+            color: #c0392b;
+        }
+        .preview-table tr.row-error td strong { color: #c0392b; }
+        .badge-ok {
+            background-color: #6cc3a0;
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-error {
+            background-color: #e74c3c;
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        /* ── 完了レポート ── */
+        .report-box {
+            border: 1px solid #6cc3a0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .report-box-header {
+            background: #eaf7f0;
+            padding: 10px 16px;
+            font-weight: 600;
+            color: #2a7a50;
+            font-size: 15px;
+        }
+        .report-box-body {
+            padding: 16px;
+        }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .report-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e8edf5;
+        }
+        .report-table td:first-child { color: #555; font-weight: 600; }
+        .report-table td:last-child { color: #333; }
+        /* ── STEP3 インポート実行エリア ── */
+        .import-note {
+            font-size: 13px;
+            color: #c05a00;
+            background: #fff8f0;
+            border: 1px solid #f5c185;
+            border-radius: 6px;
+            padding: 8px 14px;
+            margin-bottom: 16px;
+        }
+        /* ── フラッシュメッセージ ── */
+        .flash-error {
+            background-color: #fdf2f2;
+            border: 1px solid #e74c3c;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #c0392b;
+            margin-bottom: 12px;
+        }
+        /* ── ボタン群 ── */
+        .action-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .btn-cancel {
+            display: inline-block;
+            padding: 9px 20px;
+            background: #eef2f7;
+            border: none;
+            border-radius: 8px;
+            color: #555;
+            font-size: 14px;
+            font-family: 'Segoe UI', sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn-cancel:hover { background: #e0e5ee; }
+        .btn-import {
+            padding: 9px 24px;
+            background: #3b5ea6;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-family: 'Segoe UI', sans-serif;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-import:hover { background: #2e4d8a; }
+        .btn-import:disabled {
+            background: #b0b8cc;
+            cursor: not-allowed;
+        }
+        .btn-upload {
+            padding: 9px 20px;
+            background: #3182CE;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-family: 'Segoe UI', sans-serif;
+            cursor: pointer;
+        }
+        .btn-upload:hover { background: #2563a8; }
+    </style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<div class="logo">
+    <div style="display:flex; align-items:center; gap:15px;">
+        <img src="{% static 'bold-logo.webp' %}" alt="logo">
+        <span>社内会議室予約システム：CSVインポート</span>
+    </div>
+    <div class="top-links">
+        <a href="{% url 'user_admin_list' %}">戻る</a>
+        <span class="sep">｜</span>
+        <form method="post" action="{% url 'logout' %}" style="margin:0;padding:0;">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">ログアウト</button>
+        </form>
+    </div>
+</div>
+
+<!-- メインコンテナ -->
+<div class="calendar-container">
+
+    <!-- ツールバー -->
+    <div class="calendar-toolbar">
+        <div class="toolbar-left">
+            <span class="page-title">ユーザー一括登録（CSVインポート）</span>
+        </div>
+    </div>
+
+    <!-- フラッシュメッセージ（フォームエラー） -->
+    {% if form.non_field_errors %}
+    <div class="flash-error">
+        {% for error in form.non_field_errors %}
+            {{ error }}
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if form.csv_file.errors %}
+    <div class="flash-error">
+        {% for error in form.csv_file.errors %}
+            {{ error }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="admin-card" style="padding: 0; overflow: hidden;">
+
+        <!-- ===== STEP 1: CSVファイルを選択してアップロード ===== -->
+        <div class="step-header">STEP1　CSVファイルを選択してアップロード</div>
+        <div class="step-body">
+            <p class="format-desc">
+                対応フォーマット：<code>UTF-8</code> または <code>Shift-JIS</code>　／
+                列構成：<code>ユーザーID, 氏名, 権限(admin/user), 所属名（任意）</code>
+                　※ 1行目はヘッダー行としてスキップされます
+            </p>
+            <form method="post" enctype="multipart/form-data" action="{% url 'csv_import' %}">
+                {% csrf_token %}
+                <div class="file-input-row">
+                    {{ form.csv_file }}
+                    <button type="submit" class="btn-upload">アップロード</button>
+                </div>
+            </form>
+        </div>
+
+        {% if preview_rows is not None %}
+        <!-- ===== STEP 2: プレビュー確認 ===== -->
+        <div class="step-header" style="margin-top: 0; border-radius: 0;">
+            STEP2　プレビュー確認（取り込み前に内容を確認してください）
+        </div>
+        <div class="step-body">
+
+            <!-- サマリー -->
+            <div class="preview-summary">
+                <span class="summary-valid">取込対象：{{ valid_count }}件</span>
+                {% if error_count > 0 %}
+                <span class="summary-error">エラー：{{ error_count }}件（スキップ）</span>
+                {% endif %}
+            </div>
+
+            <!-- プレビューテーブル -->
+            <table class="preview-table">
+                <thead>
+                    <tr>
+                        <th>ユーザーID</th>
+                        <th>氏名</th>
+                        <th>権限</th>
+                        <th>所属名</th>
+                        <th class="center">取込判定</th>
+                        <th>備考</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in preview_rows %}
+                    <tr class="{% if not row.is_valid %}row-error{% endif %}">
+                        <td>{{ row.login_id|default:"（空）" }}</td>
+                        <td><strong>{{ row.name|default:"（空）" }}</strong></td>
+                        <td>
+                            {% if row.role == 'admin' %}管理者
+                            {% elif row.role == 'user' %}一般
+                            {% else %}{{ row.role|default:"―" }}
+                            {% endif %}
+                        </td>
+                        <td>{{ row.dept_name|default:"―" }}</td>
+                        <td class="center">
+                            {% if row.is_valid %}
+                                <span class="badge-ok">OK</span>
+                            {% else %}
+                                <span class="badge-error">ERROR</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:13px; color:#c0392b;">
+                            {{ row.error|default:"" }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align:center; color:#aaa; padding:20px;">
+                            データがありません
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ===== STEP 3: インポート実行 ===== -->
+        <div class="step-header" style="margin-top: 0; border-radius: 0;">STEP3　インポート実行</div>
+        <div class="step-body">
+            {% if error_count > 0 %}
+            <p class="import-note">
+                エラー行（{{ error_count }}件）はスキップされ、有効な {{ valid_count }}件のみ登録されます。
+            </p>
+            {% endif %}
+            <div class="action-row">
+                <a href="{% url 'user_admin_list' %}" class="btn-cancel">キャンセル</a>
+                {% if valid_count > 0 %}
+                <form method="post" action="{% url 'csv_import_execute' %}" style="margin:0;padding:0;">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="btn-import"
+                            onclick="return confirm('{{ valid_count }}件のユーザーを登録します。よろしいですか？')">
+                        インポートを実行する（{{ valid_count }}件）
+                    </button>
+                </form>
+                {% else %}
+                <button type="button" class="btn-import" disabled>
+                    インポートを実行する（有効行なし）
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+</div><!-- /.calendar-container -->
+
+</body>
+</html>

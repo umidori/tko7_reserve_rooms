@@ -99,6 +99,12 @@
             <span class="page-title">ユーザー管理</span>
         </div>
         <div class="toolbar-right">
+            <a href="{% url 'csv_import' %}"
+               style="display:inline-block; padding:8px 18px; background:#eef2f7; border-radius:8px;
+                      color:#3182CE; font-size:14px; font-family:'Segoe UI',sans-serif;
+                      text-decoration:none; font-weight:500; margin-right:8px;">
+                CSVインポート画面へ &rsaquo;
+            </a>
             <button class="btn-add" onclick="openUserModal('create')">＋ ユーザーを追加</button>
         </div>
     </div>

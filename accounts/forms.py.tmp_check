@@ -28,7 +28,16 @@ class EmailAuthenticationForm(AuthenticationForm):
     )
 
 
+# ─────────────────────────────────────────────────────────────
+# F-15: ユーザー追加フォーム
+# ─────────────────────────────────────────────────────────────
 class UserCreateForm(forms.ModelForm):
+    """ユーザー手動追加フォーム（F-15）
+
+    - login_id / name / role / department を入力
+    - パスワードはビュー側で set_password('Bold1234') を呼び出す
+    """
+
     department = forms.ModelChoiceField(
         queryset=Department.objects.all().order_by('name'),
         required=False,
@@ -63,7 +72,16 @@ class UserCreateForm(forms.ModelForm):
         return login_id
 
 
+# ─────────────────────────────────────────────────────────────
+# F-15: ユーザー編集フォーム
+# ─────────────────────────────────────────────────────────────
 class UserUpdateForm(forms.ModelForm):
+    """ユーザー編集フォーム（F-15）
+
+    - login_id は変更不可（フィールドに含めない）
+    - name / role / department のみ変更可
+    """
+
     department = forms.ModelChoiceField(
         queryset=Department.objects.all().order_by('name'),
         required=False,
@@ -81,41 +99,4 @@ class UserUpdateForm(forms.ModelForm):
         }
         widgets = {
             'name': forms.TextInput(attrs={
-                'placeholder': '氏名を入力してください。',
-            }),
-            'role': forms.Select(),
-        }
-
-
-class CSVUploadForm(forms.Form):
-    CSV_MAX_SIZE = 5 * 1024 * 1024  # 5MB
-
-    csv_file = forms.FileField(
-        label='CSVファイル',
-        error_messages={
-            'required': 'CSVファイルを選択してください。',
-        },
-    )
-
-    def clean_csv_file(self):
-        f = self.cleaned_data.get('csv_file')
-        if not f:
-            return f
-
-        ext = os.path.splitext(f.name)[1].lower()
-        if ext != '.csv':
-            raise forms.ValidationError('CSVファイル（.csv）をアップロードしてください。')
-
-        allowed_mime = (
-            'text/csv',
-            'text/plain',
-            'application/csv',
-            'application/octet-stream',
-        )
-        if hasattr(f, 'content_type') and f.content_type not in allowed_mime:
-            raise forms.ValidationError('CSVファイルをアップロードしてください。')
-
-        if f.size > self.CSV_MAX_SIZE:
-            raise forms.ValidationError('ファイルサイズが上限（5MB）を超えています。')
-
-        return f
+                'plac
