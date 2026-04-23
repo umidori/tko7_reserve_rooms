@@ -15,7 +15,6 @@ from datetime import date
 from reservations.models import Room, Reservation, Building, Facility
 from reservations.forms import ReservationFilterForm
 from accounts.models import Department, User
-from accounts.mixins import AdminRequiredMixin
 from .forms import RoomForm, UserCreateForm, UserUpdateForm, CSVUploadForm
 
 logger = logging.getLogger(__name__)
@@ -185,7 +184,7 @@ def _user_list_context(request, **extra):
 
 
 # F-14: ユーザー一覧
-class UserListView(AdminRequiredMixin, ListView):
+class UserListView(StaffRequiredMixin, ListView):
     model = User
     template_name = 'admin_panel/user_list.html'
     context_object_name = 'users'
@@ -213,7 +212,7 @@ class UserListView(AdminRequiredMixin, ListView):
 
 
 # F-15: ユーザー追加
-class UserCreateView(AdminRequiredMixin, CreateView):
+class UserCreateView(StaffRequiredMixin, CreateView):
     model = User
     form_class = UserCreateForm
     success_url = reverse_lazy('user_admin_list')
@@ -243,7 +242,7 @@ class UserCreateView(AdminRequiredMixin, CreateView):
 
 
 # F-15: ユーザー編集
-class UserUpdateView(AdminRequiredMixin, UpdateView):
+class UserUpdateView(StaffRequiredMixin, UpdateView):
     model = User
     form_class = UserUpdateForm
     success_url = reverse_lazy('user_admin_list')
@@ -276,7 +275,7 @@ class UserUpdateView(AdminRequiredMixin, UpdateView):
 
 
 # F-16: ユーザー有効/無効トグル
-class UserToggleActiveView(AdminRequiredMixin, View):
+class UserToggleActiveView(StaffRequiredMixin, View):
     def post(self, request, pk):
         target = get_object_or_404(User, pk=pk)
 
@@ -298,7 +297,7 @@ class UserToggleActiveView(AdminRequiredMixin, View):
 SESSION_KEY_CSV_PREVIEW = 'csv_preview_data'
 
 
-class CSVImportView(AdminRequiredMixin, View):
+class CSVImportView(StaffRequiredMixin, View):
     template_name = 'admin_panel/csv_import.html'
 
     @staticmethod
@@ -393,7 +392,7 @@ class CSVImportView(AdminRequiredMixin, View):
         })
 
 
-class CSVImportExecuteView(AdminRequiredMixin, View):
+class CSVImportExecuteView(StaffRequiredMixin, View):
     http_method_names = ['post']
 
     def post(self, request, *args, **kwargs):
@@ -444,7 +443,7 @@ class CSVImportExecuteView(AdminRequiredMixin, View):
 # 全予約管理（F-21）
 # ─────────────────────────────────────────────
 
-class AllReservationListView(AdminRequiredMixin, ListView):
+class AllReservationListView(StaffRequiredMixin, ListView):
     """F-21: 全予約一覧・管理"""
     model = Reservation
     template_name = 'admin_panel/admin_reservation_list.html'
