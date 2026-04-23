@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page_title }} | 会議室予約システム</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'common.css' %}">
+    <link rel="stylesheet" href="{% static 'room_admin.css' %}">
+    <style>
+        .login-id-display {
+            padding:8px 12px; background-color:#f0f0f0; border:1px solid #ddd;
+            border-radius:8px; font-size:14px; color:#666;
+            font-family:'Segoe UI',sans-serif; display:inline-block;
+        }
+        .form-table select {
+            width:100%; padding:7px 10px; border:1px solid #ccc; border-radius:6px;
+            font-size:14px; background-color:#eef2f7; box-sizing:border-box;
+            font-family:'Segoe UI',sans-serif; color:#333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="logo">
+    <div style="display:flex; align-items:center; gap:15px;">
+        <img src="{% static 'bold-logo.webp' %}" alt="logo">
+        <span>社内会議室予約システム：ユーザー管理</span>
+    </div>
+    <div class="top-links">
+        <a href="{% url 'user_admin_list' %}">戻る</a>
+        <span class="sep">｜</span>
+        <form method="post" action="{% url 'logout' %}" style="margin:0;padding:0;">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">ログアウト</button>
+        </form>
+    </div>
+</div>
+
+<div class="calendar-container">
+
+    <div class="calendar-toolbar">
+        <div class="toolbar-left">
+            <span class="page-title">{{ page_title }}</span>
+        </div>
+    </div>
+
+    <div class="form-wrapper">
+        <div class="form-card">
+
+            {% if form.non_field_errors %}
+            <div class="alert-danger">
+                {% for error in form.non_field_errors %}
+                    <p style="margin:0;">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <table class="form-table">
+
+                    <tr>
+                        <th>ユーザーID <span class="required">*</span></th>
+                        <td>
+                            {% if is_create %}
+                                {{ form.login_id }}
+                                {% for e in form.login_id.errors %}
+                                    <div class="error-text">{{ e }}</div>
+                                {% endfor %}
+                            {% else %}
+                                <span class="login-id-display">{{ object.login_id }}</span>
+                                <div style="font-size:12px; color:#999; margin-top:4px;">
+                                    ユーザーIDは変更できません
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>氏名 <span class="required">*</span></th>
+                        <td>
+                            {{ form.name }}
+                            {% for e in form.name.errors %}
+                                <div class="error-text">{{ e }}</div>
+                            {% endfor %}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>権限 <span class="required">*</span></th>
+                        <td>
+                            {{ form.role }}
+                            {% for e in form.role.errors %}
+                                <div class="error-text">{{ e }}</div>
+                            {% endfor %}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>所属</th>
+                        <td>
+                            {{ form.department }}
+                            {% for e in form.department.errors %}
+                                <div class="error-text">{{ e }}</div>
+                            {% endfor %}
+                        </td>
+                    </tr>
+
+                </table>
+
+                <div class="form-footer">
+                    <a href="{% url 'user_admin_list' %}" class="btn-cancel">キャンセル</a>
+                    <button type="submit" class="btn-submit">
+                        {% if is_create %}追加{% else %}保存する{% endif %}
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
