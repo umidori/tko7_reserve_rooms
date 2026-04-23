@@ -59,7 +59,7 @@
                     </div>
                 </div>
                 {% endif %}
-                <a href="#">パスワード変更</a>
+                <a href="{% url 'password_change' %}">パスワード変更</a>
                 <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
                     <button type="submit" class="logout-btn">ログアウト</button>
@@ -138,6 +138,15 @@
     </div>
 </div>
 
+{% if messages %}
+    {% for message in messages %}
+        <div id="toast" class="toast top-right" style="background-color:#27ae60;">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<script src="{% static 'js/common.js' %}"></script>
 <script src="{% static 'js/calendar.js' %}"></script>
 
 </body>
