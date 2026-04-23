@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>日次カレンダー</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'common.css' %}">
-    <link rel="stylesheet" href="{% static 'calendar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
+    <link rel="stylesheet" href="{% static 'css/calendar.css' %}">
 </head>
 <body>
 
 <!-- ロゴ（login.htmlと同じ構造）-->
-<div class="logo">
-    <img src="{% static 'bold-logo.webp' %}" alt="logo">
+<div class="logo between">
+    <img src="{% static 'image/bold-logo.webp' %}" alt="logo">
     <span>社内会議室予約システム：日次カレンダー</span>
 </div>
 
@@ -46,7 +46,6 @@
             <div class="nav-dropdown" id="navMenu">
                 <a href="{% url 'rooms:room_list' %}">会議室一覧</a>
                 <a href="{% url 'my_reservations' %}">自分の予約</a>
-                <a href="{% url 'reservation_create' %}">予約作成</a>
                 {% if request.user.is_staff %}
                 <div class="nav-submenu-wrapper">
                     <button class="nav-submenu-trigger" onclick="toggleAdminSubmenu(event)">
@@ -132,13 +131,13 @@
             <dd id="modal-time"></dd>
         </dl>
         <div class="modal-footer">
-            <a id="modal-detail-link" href="#" class="btn-detail">詳細を見る</a>
-            <button class="btn-close-modal" onclick="closeModal()">閉じる</button>
+            <a id="modal-detail-link" href="#" class="btn btn-primary btn-md">詳細を見る</a>
+            <button type="button" class="btn btn-light btn-md" onclick="closeModal()">閉じる</button>
         </div>
     </div>
 </div>
 
-<script src="{% static 'calendar.js' %}"></script>
+<script src="{% static 'js/calendar.js' %}"></script>
 
 </body>
 </html>

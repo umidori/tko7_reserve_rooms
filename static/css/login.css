@@ -1,0 +1,80 @@
+/* =====================================================
+   login.css
+   ログイン画面専用スタイル
+   共通スタイルは common.css を参照
+   ===================================================== */
+
+
+/* ===== ロゴ（ログイン画面は左上固定） ===== */
+.logo {
+    position: absolute;
+}
+
+
+/* ===== 画面中央配置 ===== */
+.container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* ===== フォームカード ===== */
+form {
+    background: #fff;
+    padding: 40px;
+    width: 350px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+/* ===== ラベル ===== */
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+
+/* ===== 入力 ===== */
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background-color: #eef2f7;
+    box-sizing: border-box;
+}
+
+
+/* ===== フォームグループ ===== */
+.form-group {
+    width: 100%;
+}
+
+.submit-group {
+    margin-top: 34px;
+}
+
+
+/* ===== エラー表示 ===== */
+.error-area {
+    margin-top: 6px;
+}
+
+.error-area:empty {
+    display: none;
+}
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    line-height: 1.2;
+}

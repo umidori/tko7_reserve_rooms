@@ -56,3 +56,53 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+  const roomSelect = document.getElementById('roomSelect');
+
+  if (!roomSelect) return;
+
+  roomSelect.addEventListener('change', function () {
+    const error = roomSelect.parentElement.querySelector('.field-error');
+
+    if (roomSelect.value && error) {
+      error.remove();
+    }
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  const dateInput = document.querySelector('[name="reserve_date"]');
+
+  if (!dateInput) return;
+
+  function clearDateError() {
+    const fieldBlock = dateInput.parentElement;
+    const error = fieldBlock.querySelector('.field-error');
+
+    if (dateInput.value && error) {
+      error.remove();
+    }
+  }
+
+  dateInput.addEventListener('change', clearDateError);
+  dateInput.addEventListener('input', clearDateError);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  const titleInput = document.querySelector('[name="title"]');
+
+  if (!titleInput) return;
+
+  function clearTitleError() {
+    const fieldBlock = titleInput.parentElement;
+    const errorArea = fieldBlock.querySelector('.field-error-area');
+
+    if (titleInput.value && errorArea) {
+      errorArea.innerHTML = '';
+    }
+  }
+
+  titleInput.addEventListener('input', clearTitleError);
+  titleInput.addEventListener('change', clearTitleError);
+});
