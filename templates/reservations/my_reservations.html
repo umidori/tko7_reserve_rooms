@@ -5,52 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>自分の予約一覧 | 会議室予約システム</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'common.css' %}">
-    <link rel="stylesheet" href="{% static 'my_reservations.css' %}">
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
+    <link rel="stylesheet" href="{% static 'css/my_reservations.css' %}">
 </head>
 <body>
 
-<!-- ロゴ（「日次カレンダーに戻る｜ログアウト」を右端に配置） -->
-<div class="logo">
-    <div style="display:flex; align-items:center; gap:15px;">
-        <img src="{% static 'bold-logo.webp' %}" alt="logo">
+<div class="logo between">
+    <div class="header-logo">
+        <img src="{% static 'image/bold-logo.webp' %}" alt="logo">
         <span>社内会議室予約システム：自分の予約一覧</span>
     </div>
     <div class="top-links">
         <a href="{% url 'calendar' %}">日次カレンダーに戻る</a>
         <span class="sep">｜</span>
-        <form method="post" action="{% url 'logout' %}" style="margin:0;padding:0;">
+        <form method="post" action="{% url 'logout' %}" class="logout-form">
             {% csrf_token %}
             <button type="submit" class="logout-btn">ログアウト</button>
         </form>
     </div>
 </div>
 
-<!-- メインコンテナ -->
 <div class="calendar-container">
 
-    <!-- ツールバー -->
     <div class="calendar-toolbar">
         <div class="toolbar-left">
             <span class="page-title">自分の予約一覧</span>
         </div>
     </div>
 
-    <!-- タブ -->
     <div class="tab-bar">
-        <a href="?tab=upcoming"
-           class="tab-btn {% if active_tab == 'upcoming' %}active{% endif %}">
+        <a href="?tab=upcoming" class="tab-btn {% if active_tab == 'upcoming' %}active{% endif %}">
             今後の予約
             <span class="tab-count">{{ upcoming_count }}</span>
         </a>
-        <a href="?tab=past"
-           class="tab-btn {% if active_tab == 'past' %}active{% endif %}">
+        <a href="?tab=past" class="tab-btn {% if active_tab == 'past' %}active{% endif %}">
             過去の予約
             <span class="tab-count">{{ past_count }}</span>
         </a>
     </div>
 
-    <!-- 予約一覧テーブル -->
     <div class="admin-card">
         <table class="admin-table">
             <thead>
@@ -64,8 +57,7 @@
             </thead>
             <tbody>
                 {% for rsv in reservations %}
-                <tr class="clickable-row"
-                    onclick="location.href='/reservations/{{ rsv.id }}/'">
+                <tr class="clickable-row" onclick="location.href='/reservations/{{ rsv.id }}/'">
                     <td>
                         {{ rsv.start_at|date:"Y/m/d（D）" }}<br>
                         <span style="color:#888; font-size:13px;">
@@ -108,14 +100,12 @@
         </table>
     </div>
 
-    <!-- 新規予約ボタン -->
     <div class="action-bar">
-        <a href="{% url 'reservation_create' %}" class="btn-new-reservation">
+        <a href="{% url 'reservation_create' %}" class="btn btn-primary btn-md">
             ＋ 新しい予約を作成する
         </a>
     </div>
 
-</div><!-- /.calendar-container -->
-
+</div>
 </body>
 </html>

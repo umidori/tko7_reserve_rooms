@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>予約詳細</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'reservations.css' %}">
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
+    <link rel="stylesheet" href="{% static 'css/reservations.css' %}">
 </head>
 <body>
 
-<div class="header">
-    <div class="logo">
-        <img src="{% static 'bold-logo.webp' %}" alt="logo">
+<div class="logo between">
+    <div class="header-logo">
+        <img src="{% static 'image/bold-logo.webp' %}" alt="logo">
         <span>社内会議室予約システム：予約詳細</span>
     </div>
-
     <div class="top-links">
         <a href="{% url 'calendar' %}">日次カレンダーに戻る</a>
-        <span>|</span>
+        <span class="sep">｜</span>
         <form method="post" action="{% url 'logout' %}" class="logout-form">
             {% csrf_token %}
             <button type="submit" class="logout-btn">ログアウト</button>
@@ -27,9 +27,7 @@
 
 <div class="page">
 
-  <div class="page-title">
-    予約詳細
-  </div>
+  <div class="page-title">予約詳細</div>
 
   <form>
     <div class="section">
@@ -39,7 +37,7 @@
         <div class="form-row">
           <div class="label">会議室</div>
           <div class="input short">
-            <input type="text" class="form-control" value="{{ reservation.room.name }}" disabled>
+            <input type="text" value="{{ reservation.room.name }}" disabled>
           </div>
         </div>
 
@@ -48,7 +46,6 @@
           <div class="input short">
             <input
               type="text"
-              class="form-control"
               value="{% if reservation.room.building %}{{ reservation.room.building.name }}{% endif %}{% if reservation.room.floor %}／{{ reservation.room.floor }}階{% endif %}"
               disabled>
           </div>
@@ -57,7 +54,7 @@
         <div class="form-row">
           <div class="label">収容人数</div>
           <div class="input short">
-            <input type="text" class="form-control" value="{{ reservation.room.capacity }}名" disabled>
+            <input type="text" value="{{ reservation.room.capacity }}名" disabled>
           </div>
         </div>
 
@@ -66,7 +63,6 @@
           <div class="input short">
             <input
               type="text"
-              class="form-control"
               value="{% for facility in reservation.room.facilities.all %}{{ facility.name }}{% if not forloop.last %}、{% endif %}{% empty %}-{% endfor %}"
               disabled>
           </div>
@@ -82,11 +78,7 @@
         <div class="form-row">
           <div class="label">日付</div>
           <div class="input short">
-            <input
-              type="text"
-              class="form-control"
-              value="{{ reservation.start_at|date:'Y年n月j日(D)' }}"
-              disabled>
+            <input type="text" value="{{ reservation.start_at|date:'Y年n月j日(D)' }}" disabled>
           </div>
         </div>
 
@@ -94,22 +86,14 @@
           <div class="pair">
             <div class="label">開始時刻</div>
             <div class="input short">
-              <input
-                type="text"
-                class="form-control"
-                value="{{ reservation.start_at|time:'H:i' }}"
-                disabled>
+              <input type="text" value="{{ reservation.start_at|time:'H:i' }}" disabled>
             </div>
           </div>
 
           <div class="pair">
             <div class="label">終了時刻</div>
             <div class="input short">
-              <input
-                type="text"
-                class="form-control"
-                value="{{ reservation.end_at|time:'H:i' }}"
-                disabled>
+              <input type="text" value="{{ reservation.end_at|time:'H:i' }}" disabled>
             </div>
           </div>
         </div>
@@ -124,21 +108,21 @@
         <div class="form-row">
           <div class="label">件名</div>
           <div class="input wide">
-            <input type="text" class="form-control" value="{{ reservation.title }}" disabled>
+            <input type="text" value="{{ reservation.title }}" disabled>
           </div>
         </div>
 
         <div class="form-row">
           <div class="label">参加者名</div>
           <div class="input wide">
-            <textarea class="form-control no-resize" rows="3" disabled>{{ reservation.participants|default:'' }}</textarea>
+            <textarea class="no-resize" rows="3" disabled>{{ reservation.participants|default:'' }}</textarea>
           </div>
         </div>
 
         <div class="form-row">
           <div class="label">備考</div>
           <div class="input wide">
-            <textarea class="form-control no-resize" rows="4" disabled>{{ reservation.notes|default:'' }}</textarea>
+            <textarea class="no-resize" rows="4" disabled>{{ reservation.notes|default:'' }}</textarea>
           </div>
         </div>
 
@@ -146,10 +130,8 @@
     </div>
 
     <div class="actions">
-      <a href="{% url 'reservation_edit' reservation.pk %}" class="btn-primary">
-        編集する
-      </a>
-      <button type="button" class="btn-secondary btn-cancel-reservation" id="openCancelModal">
+      <a href="{% url 'reservation_edit' reservation.pk %}" class="btn btn-primary btn-lg">編集する</a>
+      <button type="button" class="btn btn-secondary btn-lg btn-cancel-reservation" id="openCancelModal">
         予約をキャンセル
       </button>
     </div>
@@ -165,13 +147,13 @@
       </div>
 
       <div class="cancel-modal-actions">
-        <button type="button" class="modal-btn modal-btn-secondary" id="closeCancelModal">
+        <button type="button" class="btn btn-light btn-lg" id="closeCancelModal">
           キャンセルしない
         </button>
 
         <form method="post" action="{% url 'reservation_cancel' reservation.pk %}" class="cancel-form">
           {% csrf_token %}
-          <button type="submit" class="modal-btn modal-btn-danger">
+          <button type="submit" class="btn btn-danger btn-lg">
             予約をキャンセルする
           </button>
         </form>
@@ -179,6 +161,7 @@
     </div>
   </div>
 </div>
-<script src="{% static 'reservations.js' %}"></script>
+
+<script src="{% static 'js/reservations.js' %}"></script>
 </body>
 </html>

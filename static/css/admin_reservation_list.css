@@ -1,0 +1,107 @@
+/* =====================================================
+   admin_reservation_list.css
+   全予約一覧・管理画面（F-21 / S-11）専用スタイル
+   共通スタイルは common.css を参照
+   ===================================================== */
+
+
+/* ===== 絞り込み条件カード ===== */
+.filter-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.filter-card-header {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f6ff;
+    border-bottom: 1px solid #dce8f5;
+}
+
+.filter-card-body {
+    padding: 16px 20px 20px;
+}
+
+
+/* ===== 絞り込みフォームグリッド ===== */
+.filter-grid {
+    display: grid;
+    grid-template-columns: 130px 1fr 130px 1fr;
+    gap: 10px 12px;
+    align-items: center;
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.filter-label {
+    text-align: right;
+    color: #555;
+    font-weight: 500;
+    white-space: nowrap;
+    padding-right: 8px;
+}
+
+.filter-input input[type="date"],
+.filter-input select,
+.filter-input input[type="text"] {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #eef2f7;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+}
+
+.filter-input input[type="date"]:focus,
+.filter-input select:focus,
+.filter-input input[type="text"]:focus {
+    outline: none;
+    border-color: #2c7a9b;
+    background-color: #fff;
+}
+
+
+/* ===== 絞り込みボタン行 ===== */
+.filter-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+
+/* ===== 検索結果件数表示 ===== */
+.result-count {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    font-family: 'Segoe UI', sans-serif;
+    margin-bottom: 10px;
+}
+
+
+/* ===== 操作リンク ===== */
+.link-detail {
+    color: #2c7a9b;
+    text-decoration: none;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.link-detail:hover {
+    text-decoration: underline;
+}
+
+
+/* ===== ステータス色だけこの画面で使用 ===== */
+.badge-reserved  { background-color: #6cc3a0; color: #fff; }
+.badge-cancelled { background-color: #aaa;    color: #fff; }
+.badge-ended     { background-color: #aaa;    color: #fff; }
