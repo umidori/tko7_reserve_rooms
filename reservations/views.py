@@ -10,9 +10,8 @@ from django.utils.timezone import localtime
 from django.urls import reverse
 
 from .models import Room, Reservation
-from .forms import ReservationForm, ReservationFilterForm
+from .forms import ReservationForm
 from accounts.models import Department
-from accounts.mixins import AdminRequiredMixin
 from django.views.generic import DetailView
 
 
@@ -258,74 +257,3 @@ def reservation_cancel(request, pk):
 
     return redirect('calendar')
 
-
-# F-21
-class AllReservationListView(AdminRequiredMixin, ListView):
-    """F-21: all reservation list / management (S-11)"""
-    model = Reservation
-    template_name = 'reservations/admin_reservation_list.html'
-    context_object_name = 'reservations'
-
-    def get_queryset(self):
-        qs = (
-            Reservation.objects
-            .select_related('room', 'user')
-            .order_by('-start_at')
-        )
-
-        date_from_str = self.request.GET.get('date_from', '').strip()
-        date_to_str   = self.request.GET.get('date_to', '').strip()
-        room_id_str   = self.request.GET.get('room', '').strip()
-        user_name     = self.request.GET.get('user', '').strip()
-
-        if date_from_str:
-            try:
-                target = date.fromisoformat(date_from_str)
-                qs = qs.filter(start_at__date__gte=target)
-            except ValueError:
-                pass
-
-        if date_to_str:
-            try:
-                target = date.fromisoformat(date_to_str)
-                qs = qs.filter(start_at__date__lte=target)
-            except ValueError:
-                pass
-
-        if room_id_str:
-            try:
-                qs = qs.filter(room_id=int(room_id_str))
-            except (ValueError, TypeError):
-                pass
-
-        if user_name:
-            qs = qs.filter(user__name__icontains=user_name)
-
-        return qs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        form  = ReservationFilterForm(self.request.GET or None)
-        rooms = Room.objects.order_by('name')
-
-        date_from_str = self.request.GET.get('date_from', '').strip()
-        date_to_str   = self.request.GET.get('date_to', '').strip()
-
-        def fmt_date_display(date_str):
-            try:
-                return date.fromisoformat(date_str).strftime('%Y/%m/%d')
-            except (ValueError, AttributeError):
-                return ''
-
-        context.update({
-            'form':              form,
-            'rooms':             rooms,
-            'total_count':       context['reservations'].count(),
-            'date_from':         date_from_str,
-            'date_to':           date_to_str,
-            'date_from_display': fmt_date_display(date_from_str),
-            'date_to_display':   fmt_date_display(date_to_str),
-            'now':               timezone.now(),
-        })
-        return context
