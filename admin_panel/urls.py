@@ -15,7 +15,7 @@ from accounts.views import (
 from reservations.views import AllReservationListView
 
 urlpatterns = [
-        # F-14〜F-16：ユーザー管理
+     # F-14〜F-16：ユーザー管理
      path('users/',
           UserListView.as_view(),          name='user_admin_list'),
      path('users/create/',
@@ -24,7 +24,7 @@ urlpatterns = [
           UserUpdateView.as_view(),        name='user_edit'),
      path('users/<int:pk>/toggle-active/',
           UserToggleActiveView.as_view(),  name='user_toggle_active'),
-          
+
      # F-18〜F-20：会議室マスタ管理
      path('rooms/', RoomAdminListView.as_view(), name='room_admin_list'),
      path('rooms/create/', RoomCreateView.as_view(), name='room_create'),
