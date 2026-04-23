@@ -1,9 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
-
   initRoomSelect();
   initCancelModal();
   initErrorClear();
-
 });
 
 
@@ -47,11 +45,18 @@ function initCancelModal() {
 
   if (!openBtn || !closeBtn || !modal) return;
 
-  openBtn.addEventListener('click', () => modal.classList.add('open'));
-  closeBtn.addEventListener('click', () => modal.classList.remove('open'));
+  openBtn.addEventListener('click', () => {
+    modal.hidden = false;
+  });
+
+  closeBtn.addEventListener('click', () => {
+    modal.hidden = true;
+  });
 
   modal.addEventListener('click', function (e) {
-    if (e.target === modal) modal.classList.remove('open');
+    if (e.target === modal) {
+      modal.hidden = true;
+    }
   });
 }
 
