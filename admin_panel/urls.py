@@ -5,16 +5,14 @@ from .views import (
     RoomUpdateView,
     RoomDeleteView,
     RoomToggleActiveView,
-)
-from accounts.views import (
-    CSVImportExecuteView,
-    CSVImportView,
     UserListView,
     UserCreateView,
     UserUpdateView,
     UserToggleActiveView,
+    CSVImportView,
+    CSVImportExecuteView,
+    AllReservationListView,
 )
-from reservations.views import AllReservationListView
 
 urlpatterns = [
     # F-14: ユーザー一覧
@@ -35,5 +33,6 @@ urlpatterns = [
     path('rooms/<int:pk>/delete/', RoomDeleteView.as_view(), name='room_delete'),
     path('rooms/<int:pk>/toggle-active/', RoomToggleActiveView.as_view(), name='room_toggle_active'),
 
+    # F-21: 全予約一覧・管理
     path('reservations/', AllReservationListView.as_view(), name='all_reservation_list'),
 ]
