@@ -1,15 +1,23 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const roomSelect = document.getElementById('roomSelect');
 
-  // 要素取得
+  initRoomSelect();
+  initCancelModal();
+  initErrorClear();
+
+});
+
+
+/* ===== 会議室選択 ===== */
+function initRoomSelect() {
+  const roomSelect = document.getElementById('roomSelect');
+  if (!roomSelect) return;
+
   const roomName = document.getElementById('selectedRoomName');
   const roomCapacity = document.getElementById('selectedRoomCapacity');
   const roomBuilding = document.getElementById('selectedRoomBuilding');
   const roomFloor = document.getElementById('selectedRoomFloor');
 
-  if (!roomSelect) return;
-
-  function updateSelectedRoom() {
+  function update() {
     const option = roomSelect.options[roomSelect.selectedIndex];
 
     if (!option || !option.value) {
@@ -23,86 +31,50 @@ document.addEventListener('DOMContentLoaded', function () {
     roomName.textContent = option.dataset.name || '-';
     roomCapacity.textContent = '収容人数：' + (option.dataset.capacity || '-') + '名';
     roomBuilding.textContent = '建物：' + (option.dataset.building || '-');
-    roomFloor.textContent = option.dataset.floor
-      ? option.dataset.floor + '階'
-      : '-';
+    roomFloor.textContent = option.dataset.floor ? option.dataset.floor + '階' : '-';
   }
 
-  // イベント登録
-  roomSelect.addEventListener('change', updateSelectedRoom);
+  roomSelect.addEventListener('change', update);
+  update();
+}
 
-  // 初期反映
-  updateSelectedRoom();
-});
 
-document.addEventListener('DOMContentLoaded', function () {
-    const openCancelModalBtn = document.getElementById('openCancelModal');
-    const closeCancelModalBtn = document.getElementById('closeCancelModal');
-    const cancelModal = document.getElementById('cancelModal');
+/* ===== キャンセルモーダル ===== */
+function initCancelModal() {
+  const openBtn = document.getElementById('openCancelModal');
+  const closeBtn = document.getElementById('closeCancelModal');
+  const modal = document.getElementById('cancelModal');
 
-    if (openCancelModalBtn && closeCancelModalBtn && cancelModal) {
-        openCancelModalBtn.addEventListener('click', function () {
-            cancelModal.hidden = false;
-        });
+  if (!openBtn || !closeBtn || !modal) return;
 
-        closeCancelModalBtn.addEventListener('click', function () {
-            cancelModal.hidden = true;
-        });
+  openBtn.addEventListener('click', () => modal.classList.add('open'));
+  closeBtn.addEventListener('click', () => modal.classList.remove('open'));
 
-        cancelModal.addEventListener('click', function (event) {
-            if (event.target === cancelModal) {
-                cancelModal.hidden = true;
-            }
-        });
-    }
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-  const roomSelect = document.getElementById('roomSelect');
-
-  if (!roomSelect) return;
-
-  roomSelect.addEventListener('change', function () {
-    const error = roomSelect.parentElement.querySelector('.field-error');
-
-    if (roomSelect.value && error) {
-      error.remove();
-    }
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal) modal.classList.remove('open');
   });
-});
+}
 
-document.addEventListener('DOMContentLoaded', function () {
-  const dateInput = document.querySelector('[name="reserve_date"]');
 
-  if (!dateInput) return;
+/* ===== エラー削除 ===== */
+function initErrorClear() {
+  clearError('[name="title"]');
+  clearError('[name="reserve_date"]');
+  clearError('#roomSelect');
+}
 
-  function clearDateError() {
-    const fieldBlock = dateInput.parentElement;
-    const error = fieldBlock.querySelector('.field-error');
+function clearError(selector) {
+  const el = document.querySelector(selector);
+  if (!el) return;
 
-    if (dateInput.value && error) {
-      error.remove();
-    }
-  }
+  el.addEventListener('input', function () {
+    const block = el.closest('.field-block');
+    if (!block) return;
 
-  dateInput.addEventListener('change', clearDateError);
-  dateInput.addEventListener('input', clearDateError);
-});
+    const error = block.querySelector('.field-error');
+    const errorArea = block.querySelector('.field-error-area');
 
-document.addEventListener('DOMContentLoaded', function () {
-  const titleInput = document.querySelector('[name="title"]');
-
-  if (!titleInput) return;
-
-  function clearTitleError() {
-    const fieldBlock = titleInput.parentElement;
-    const errorArea = fieldBlock.querySelector('.field-error-area');
-
-    if (titleInput.value && errorArea) {
-      errorArea.innerHTML = '';
-    }
-  }
-
-  titleInput.addEventListener('input', clearTitleError);
-  titleInput.addEventListener('change', clearTitleError);
-});
+    if (error) error.remove();
+    if (errorArea) errorArea.innerHTML = '';
+  });
+}
