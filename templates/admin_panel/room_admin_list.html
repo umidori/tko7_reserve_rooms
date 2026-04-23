@@ -5,21 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>会議室マスタ管理 | 会議室予約システム</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'common.css' %}">
-    <link rel="stylesheet" href="{% static 'room_admin.css' %}">
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
+    <link rel="stylesheet" href="{% static 'css/room_admin.css' %}">
 </head>
 <body>
 
 <!-- ロゴ（「戻る｜ログアウト」を右端に配置） -->
-<div class="logo">
-    <div style="display:flex; align-items:center; gap:15px;">
-        <img src="{% static 'bold-logo.webp' %}" alt="logo">
+<div class="logo between">
+    <div class="header-logo">
+        <img src="{% static 'image/bold-logo.webp' %}" alt="logo">
         <span>社内会議室予約システム：会議室マスタ管理</span>
     </div>
     <div class="top-links">
         <a href="{% url 'home' %}">戻る</a>
         <span class="sep">｜</span>
-        <form method="post" action="{% url 'logout' %}" style="margin:0;padding:0;">
+        <form method="post" action="{% url 'logout' %}" class="logout-form">
             {% csrf_token %}
             <button type="submit" class="logout-btn">ログアウト</button>
         </form>
@@ -35,7 +35,9 @@
             <span class="page-title">会議室マスタ管理</span>
         </div>
         <div class="toolbar-right">
-            <button class="btn-add" onclick="openRoomModal('create')">＋ 会議室を追加</button>
+            <button type="button" class="btn btn-primary btn-md" onclick="openRoomModal('create')">
+                ＋ 会議室を追加
+            </button>
         </div>
     </div>
 
@@ -89,9 +91,8 @@
                     <td class="center">
                         <div class="action-group">
 
-                            {# F-18: 編集ボタン（モーダルを開く） #}
                             <button type="button"
-                                    class="btn-action"
+                                    class="btn btn-secondary btn-sm"
                                     onclick="openRoomModal('edit', this)"
                                     data-room-id="{{ room.pk }}"
                                     data-name="{{ room.name }}"
@@ -99,31 +100,31 @@
                                     data-building-id="{{ room.building_id|default:'' }}"
                                     data-floor="{{ room.floor|default:'' }}"
                                     data-facility-ids="{{ room.facility_ids }}"
-                                    data-department-ids="{{ room.department_ids }}">編集</button>
+                                    data-department-ids="{{ room.department_ids }}">
+                                編集
+                            </button>
 
-                            {# F-20: 利用停止 / 再開ボタン #}
                             <form method="post"
                                   action="{% url 'room_toggle_active' room.pk %}"
-                                  style="display:inline;margin:0;padding:0;">
+                                  class="logout-form">
                                 {% csrf_token %}
                                 {% if room.is_active %}
                                     <button type="submit"
-                                            class="btn-action btn-stop"
+                                            class="btn btn-outline-danger btn-sm"
                                             onclick="return confirm('「{{ room.name }}」を利用停止にしますか？\n既存の予約はそのまま残ります。')">
                                         利用停止
                                     </button>
                                 {% else %}
                                     <button type="submit"
-                                            class="btn-action btn-resume"
+                                            class="btn btn-outline-primary btn-sm"
                                             onclick="return confirm('「{{ room.name }}」の利用を再開しますか？')">
                                         再開
                                     </button>
                                 {% endif %}
                             </form>
 
-                            {# F-19: 削除ボタン #}
                             <button type="button"
-                                    class="btn-action btn-delete"
+                                    class="btn btn-outline-danger btn-sm"
                                     data-room-id="{{ room.pk }}"
                                     data-room-name="{{ room.name|escapejs }}"
                                     data-reservation-count="{{ room.future_reservation_count }}"
@@ -153,7 +154,7 @@
 
 
 <!-- ===================================================
-     会議室追加・編集モーダル（F-18）
+     会議室追加・編集モーダル
      ==================================================== -->
 <div class="modal-overlay {% if modal_open %}open{% endif %}"
      id="roomFormModal"
@@ -179,7 +180,6 @@
             {% endif %}
 
             <table class="form-table">
-                <!-- 室名 -->
                 <tr>
                     <th>室名 <span class="required">*</span></th>
                     <td>
@@ -189,7 +189,6 @@
                         {% endfor %}
                     </td>
                 </tr>
-                <!-- 収容人数 -->
                 <tr>
                     <th>収容人数 <span class="required">*</span></th>
                     <td>
@@ -202,7 +201,6 @@
                         {% endfor %}
                     </td>
                 </tr>
-                <!-- 設備 -->
                 <tr>
                     <th>設備</th>
                     <td>
@@ -219,7 +217,6 @@
                         </div>
                     </td>
                 </tr>
-                <!-- 建物 -->
                 <tr>
                     <th>建物</th>
                     <td>
@@ -229,7 +226,6 @@
                         {% endfor %}
                     </td>
                 </tr>
-                <!-- 階数 -->
                 <tr>
                     <th>階数</th>
                     <td>
@@ -239,7 +235,6 @@
                         {% endfor %}
                     </td>
                 </tr>
-                <!-- 所属別表示設定 -->
                 <tr>
                     <th>所属別表示設定</th>
                     <td>
@@ -259,8 +254,8 @@
             </table>
 
             <div class="modal-footer" style="margin-top:20px;">
-                <button type="button" class="btn-secondary" onclick="closeRoomModal()">キャンセル</button>
-                <button type="submit" class="btn-submit">保存する</button>
+                <button type="button" class="btn btn-light btn-md" onclick="closeRoomModal()">キャンセル</button>
+                <button type="submit" class="btn btn-primary btn-md">保存する</button>
             </div>
 
         </form>
@@ -269,12 +264,11 @@
 
 
 <!-- ===================================================
-     会議室削除確認モーダル（F-19）
+     会議室削除確認モーダル
      ==================================================== -->
 <div class="modal-overlay" id="deleteModal" onclick="closeModalOnOverlay(event)">
     <div class="modal-box">
 
-        <!-- Step 1: 最初の確認 -->
         <div id="deleteStep1">
             <h5>会議室の削除</h5>
             <p>以下の会議室を削除しますか？</p>
@@ -284,22 +278,21 @@
                 削除すると<strong>予約データも消えます。</strong>
             </div>
             <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeDeleteModal()">キャンセル</button>
-                <button class="btn-danger" id="proceedToStep2">削除する</button>
+                <button type="button" class="btn btn-light btn-md" onclick="closeDeleteModal()">キャンセル</button>
+                <button type="button" class="btn btn-danger btn-md" id="proceedToStep2">削除する</button>
             </div>
         </div>
 
-        <!-- Step 2: 最終確認 -->
         <div id="deleteStep2" style="display:none;">
             <h5>最終確認</h5>
             <p style="text-align:center;margin-top:16px;">本当に削除しますか？</p>
             <p class="modal-room-name" id="modalRoomName2" style="color:#e74c3c;"></p>
             <p style="text-align:center;color:#aaa;font-size:13px;">この操作は取り消せません。</p>
             <div class="modal-footer">
-                <button class="btn-secondary" id="backToStep1">戻る</button>
-                <form id="deleteForm" method="post" style="margin:0;padding:0;display:inline;">
+                <button type="button" class="btn btn-light btn-md" id="backToStep1">戻る</button>
+                <form id="deleteForm" method="post" class="logout-form">
                     {% csrf_token %}
-                    <button type="submit" class="btn-danger">削除を実行する</button>
+                    <button type="submit" class="btn btn-danger btn-md">削除を実行する</button>
                 </form>
             </div>
         </div>
@@ -308,13 +301,13 @@
 </div>
 
 
-<!-- JS に渡す URL 定数（data 属性経由） -->
+<!-- JS に渡す URL 定数 -->
 <div id="js-urls"
      data-create-url="{% url 'room_create' %}"
      data-edit-url-template="{% url 'room_edit' pk=0 %}"
      style="display:none;"></div>
 
-<script src="{% static 'room_admin.js' %}"></script>
+<script src="{% static 'js/room_admin.js' %}"></script>
 
 </body>
 </html>

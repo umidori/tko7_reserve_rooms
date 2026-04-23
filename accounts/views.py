@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class CustomLoginView(LoginView):
-    template_name = 'login.html'
+    template_name = 'accounts/login.html'
     authentication_form = EmailAuthenticationForm
 
 

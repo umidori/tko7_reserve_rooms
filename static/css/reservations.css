@@ -1,0 +1,353 @@
+/* =====================================================
+   reservations.css
+   予約作成・編集・詳細画面 専用スタイル
+   共通スタイルは common.css を参照
+   ===================================================== */
+
+
+/* ===== ページレイアウト ===== */
+.page {
+  width: 100%;
+  max-width: 1020px;
+  margin: 0 auto 40px;
+  padding: 0 12px 24px;
+  box-sizing: border-box;
+}
+
+/* ===== 選択中会議室 ===== */
+.selected-room-box {
+  background: #d9e6f2;
+  border: 1px solid #8ea7bc;
+  padding: 10px 16px 18px;
+  margin-bottom: 18px;
+  box-sizing: border-box;
+}
+
+.selected-room-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #4b5b68;
+  margin-bottom: 12px;
+}
+
+.selected-room-info {
+  display: grid;
+  grid-template-columns: auto auto auto 0.5fr;
+  gap: 16px;
+  align-items: center;
+  font-size: 16px;
+  color: #334;
+  min-height: 40px;
+}
+
+.room-main,
+.selected-room-capacity,
+.selected-room-building,
+.selected-room-floor {
+  font-size: 18px;
+  font-weight: 500;
+  min-height: 1.5em;
+}
+
+.text-muted {
+  color: #666;
+  font-size: 15px;
+}
+
+/* ===== セクション ===== */
+.section {
+  background: #efefef;
+  margin-bottom: 18px;
+  box-sizing: border-box;
+}
+
+.section-title {
+  background: #e5e5e5;
+  color: #4a4a4a;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 10px 14px;
+}
+
+.section-body {
+  padding: 28px 40px;
+  box-sizing: border-box;
+}
+
+/* ===== フォーム ===== */
+.form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 10px;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+.form-row.double {
+  justify-content: flex-start;
+  gap: 60px;
+}
+
+.form-row:has(textarea) {
+  align-items: flex-start;
+}
+
+.form-row:has(textarea) .label {
+  margin-top: 6px;
+}
+
+.pair {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 420px;
+}
+
+.label {
+  width: 140px;
+  text-align: right;
+  font-size: 16px;
+  font-weight: 600;
+  color: #444;
+  flex-shrink: 0;
+}
+
+.input.short {
+  width: 175px;
+  flex-shrink: 0;
+}
+
+.input.wide {
+  flex: 1;
+}
+
+.section .form-row .input.wide {
+  min-width: 0;
+}
+
+/* ===== 入力部品 ===== */
+input,
+select,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cfcfcf;
+  border-radius: 8px;
+  background: #fff;
+  color: #444;
+  font-size: 16px;
+  padding: 10px 14px;
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #7da0bf;
+  box-shadow: 0 0 0 2px rgba(125, 160, 191, 0.15);
+}
+
+textarea {
+  min-height: 92px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #b7b7b7;
+}
+
+.no-resize {
+  resize: none;
+  overflow-y: auto;
+}
+
+/* ===== エラー付き行 ===== */
+.form-row-errorable {
+  display: grid;
+  grid-template-columns: 140px auto;
+  column-gap: 10px;
+  align-items: start;
+  margin-bottom: 12px;
+}
+
+.form-row-errorable .label {
+  width: auto;
+  text-align: right;
+  font-size: 16px;
+  font-weight: 600;
+  color: #444;
+  padding-top: 10px;
+  box-sizing: border-box;
+}
+
+.field-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-block.short {
+  width: 175px;
+}
+
+.field-block.wide {
+  width: 100%;
+}
+
+.field-error-area {
+  margin-top: 4px;
+}
+
+.field-error-area:empty {
+  display: none;
+}
+
+.field-error {
+  color: #e74c3c;
+  font-size: 13px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.error-box {
+  background: #fde8e8;
+  border: 1px solid #e0b4b4;
+  color: #8a3b3b;
+  padding: 12px 14px;
+  margin-top: 12px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* ===== ボタン行 ===== */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 90px;
+  margin-top: 42px;
+}
+
+.btn-cancel-reservation {
+  color: #ff3b30;
+}
+
+.btn-cancel-reservation:hover {
+  color: #d70015;
+}
+
+/* ===== キャンセルモーダル ===== */
+.cancel-modal {
+  width: 520px;
+  max-width: calc(100% - 32px);
+  background: #efe3b9;
+  border: 1px solid #8d7f55;
+  border-radius: 24px;
+  padding: 26px 28px 20px;
+  box-sizing: border-box;
+}
+
+.cancel-modal-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #5f5850;
+  margin-bottom: 22px;
+}
+
+.cancel-modal-message {
+  font-size: 18px;
+  line-height: 1.7;
+  color: #5f5850;
+  margin-bottom: 26px;
+}
+
+.cancel-modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.cancel-form {
+  margin: 0;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-overlay[hidden] {
+  display: none !important;
+}
+
+/* ===== レスポンシブ ===== */
+@media (max-width: 900px) {
+  .selected-room-info {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .form-row,
+  .pair,
+  .form-row.double {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .label {
+    width: auto;
+    text-align: left;
+  }
+
+  .input.short,
+  .input.wide,
+  .field-block.short,
+  .field-block.wide {
+    width: 100%;
+  }
+
+  .form-row-errorable {
+    grid-template-columns: 1fr;
+    row-gap: 8px;
+  }
+
+  .form-row-errorable .label {
+    text-align: left;
+    padding-top: 0;
+  }
+
+  .section-body {
+    padding: 20px;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .btn-lg,
+  .btn-md,
+  .btn-light,
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .cancel-modal-actions {
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+}
