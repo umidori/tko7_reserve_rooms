@@ -99,8 +99,8 @@ class TestF07RoomList(TestCase):
     def test_room_name_links_to_calendar_with_room_id(self):
         """正常系: 室名リンクが当該会議室のカレンダーURL を持つこと"""
         response = self.client.get(self.url)
-        # テンプレートの href はリテラル "&" なので HTML も "&" のまま出力される
-        expected_url = '/calendar/?filter=all&room_id={}'.format(self.active_room.id)
+        # href 属性内の & は HTML 的に &amp; とエスケープされて出力される
+        expected_url = '/calendar/?filter=all&amp;room_id={}'.format(self.active_room.id)
         self.assertContains(response, expected_url)
 
     def test_room_list_sorted_by_name(self):

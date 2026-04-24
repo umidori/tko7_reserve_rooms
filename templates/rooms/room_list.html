@@ -100,7 +100,7 @@
                 {% for room in rooms %}
                 <tr class="{% if not room.is_active %}row-inactive{% endif %}">
                     <td>
-                        <a href="/calendar/?filter=all&room_id={{ room.id }}" class="room-name-link">{{ room.name }}</a>
+                        <a href="/calendar/?filter=all&amp;room_id={{ room.id }}" class="room-name-link">{{ room.name }}</a>
                     </td>
                     <td class="center">{{ room.capacity }}名</td>
                     <td>
