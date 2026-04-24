@@ -1,12 +1,12 @@
 """
 F-07: 会議室一覧表示 (RoomListView) の単体テスト
 対象ビュー : rooms.views.RoomListView
-URL name  : rooms:room_list  →  /rooms/
+URL name  : rooms:room_list  ->  /rooms/
 
 仕様:
   - 全会議室を一覧表示（is_active=False も「利用停止中」バッジを付けて表示）
-  - 室名・収容人数・設備・建物／階数・利用可否を表示
-  - 室名リンクは当該会議室のカレンダー（/calendar/?filter=all&room_id=<id>）へ遷移
+  - 室名・収容人数・設備・建物/階数・利用可否を表示
+  - 室名リンクは当該会議室のカレンダーへ遷移
 """
 from django.test import TestCase
 from django.urls import reverse
@@ -49,17 +49,15 @@ class TestF07RoomList(TestCase):
 
         self.client.login(username='test@example.com', password='TestPass123')
 
-    # ──────────────────────────────────────────────
-    # 正常系
-    # ──────────────────────────────────────────────
+    # ------------------------------------------------------------------ 正常系
 
     def test_room_list_returns_200(self):
-        """正常系: /rooms/ にアクセス → 200 OK が返ること"""
+        """正常系: /rooms/ にアクセス -> 200 OK が返ること"""
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
     def test_room_list_shows_all_rooms_including_inactive(self):
-        """正常系: フィルターなし → 利用停止中を含む全会議室がコンテキストに含まれること"""
+        """正常系: フィルターなし -> 利用停止中を含む全会議室がコンテキストに含まれること"""
         response = self.client.get(self.url)
         rooms = list(response.context['rooms'])
         self.assertIn(self.active_room, rooms)
@@ -72,7 +70,7 @@ class TestF07RoomList(TestCase):
         self.assertContains(response, '会議室B')
 
     def test_room_list_shows_capacity(self):
-        """正常系: 収容人数が「〇名」形式で一覧に表示されること"""
+        """正常系: 収容人数が「○名」形式で一覧に表示されること"""
         response = self.client.get(self.url)
         self.assertContains(response, '10名')
         self.assertContains(response, '5名')
@@ -99,9 +97,10 @@ class TestF07RoomList(TestCase):
         self.assertContains(response, '利用停止中')
 
     def test_room_name_links_to_calendar_with_room_id(self):
-        """正常系: 室名リンクが当該会議室のカレンダーURL（?filter=all&room_id=<id>）を持つこと"""
+        """正常系: 室名リンクが当該会議室のカレンダーURL を持つこと"""
         response = self.client.get(self.url)
-        expected_url = f'/calendar/?filter=all&amp;room_id={self.active_room.id}'
+        # テンプレートの href はリテラル "&" なので HTML も "&" のまま出力される
+        expected_url = '/calendar/?filter=all&room_id={}'.format(self.active_room.id)
         self.assertContains(response, expected_url)
 
     def test_room_list_sorted_by_name(self):
@@ -113,10 +112,10 @@ class TestF07RoomList(TestCase):
     def test_room_with_no_facility_shows_dash(self):
         """正常系: 設備なし会議室の設備列に「―」が表示されること"""
         response = self.client.get(self.url)
-        self.assertContains(response, '―')
+        self.assertContains(response, '\u2015')
 
     def test_room_list_empty_shows_no_results_message(self):
-        """正常系: 会議室が0件 → 「条件に一致する会議室が見つかりませんでした」が表示されること"""
+        """正常系: 会議室が0件 -> 「条件に一致する会議室が見つかりませんでした」が表示されること"""
         Room.objects.all().delete()
         response = self.client.get(self.url)
         self.assertContains(response, '条件に一致する会議室が見つかりませんでした')
@@ -126,15 +125,13 @@ class TestF07RoomList(TestCase):
         response = self.client.get(self.url)
         self.assertIn('form', response.context)
 
-    # ──────────────────────────────────────────────
-    # 異常系
-    # ──────────────────────────────────────────────
+    # ------------------------------------------------------------------ 異常系
 
     def test_unauthenticated_redirects_to_login(self):
-        """異常系: 未ログイン状態でアクセス → ログイン画面へリダイレクトされること"""
+        """異常系: 未ログイン状態でアクセス -> ログイン画面へリダイレクトされること"""
         self.client.logout()
         response = self.client.get(self.url)
         self.assertRedirects(
             response,
-            f'{self.login_url}?next={self.url}',
+            '{}?next={}'.format(self.login_url, self.url),
         )
