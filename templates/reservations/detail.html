@@ -106,6 +106,13 @@
       <div class="section-body">
 
         <div class="form-row">
+          <div class="label">予約者名</div>
+          <div class="input wide">
+            <input type="text" value="{{ reservation.reserved_by }}" disabled>
+          </div>
+        </div>
+
+        <div class="form-row">
           <div class="label">件名</div>
           <div class="input wide">
             <input type="text" value="{{ reservation.title }}" disabled>

@@ -119,6 +119,8 @@ class ReservationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields['room'].queryset = Room.objects.filter(is_active=True)
+
         if self.instance and self.instance.pk:
             local_start_at = timezone.localtime(self.instance.start_at)
             local_end_at = timezone.localtime(self.instance.end_at)
