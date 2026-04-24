@@ -106,7 +106,8 @@
 }
 
 .nav-dropdown a:hover,
-.nav-dropdown .logout-btn:hover {
+.nav-dropdown .logout-btn:hover,
+.nav-submenu-trigger:hover {
     background-color: #f4f6f9;
 }
 

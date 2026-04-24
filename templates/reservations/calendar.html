@@ -13,7 +13,7 @@
 <!-- ロゴ -->
 <div class="logo between">
     <div class="header-logo">
-        <img src="{% static 'image/bold-logo.webp' %}" alt="logo">
+        <a href="/"><img src="{% static 'image/bold-logo.webp' %}" alt="logo"></a>
         <span>社内会議室予約システム：日次カレンダー</span>
     </div>
 </div>
@@ -52,7 +52,6 @@
                 <div class="nav-submenu-wrapper">
                     <button class="nav-submenu-trigger" onclick="toggleAdminSubmenu(event)">
                         管理メニュー •••
-                        <span class="submenu-arrow" id="adminArrow"></span>
                     </button>
                     <div class="nav-submenu" id="adminSubmenu">
                         <a href="{% url 'user_admin_list' %}">ユーザー管理</a>

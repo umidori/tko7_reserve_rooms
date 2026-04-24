@@ -12,7 +12,7 @@
 
 <div class="logo between">
     <div class="header-logo">
-        <img src="{% static 'image/bold-logo.webp' %}" alt="logo">
+        <a href="/"><img src="{% static 'image/bold-logo.webp' %}" alt="logo"></a>
         <span>社内会議室予約システム：会議室一覧・検索</span>
     </div>
     <div class="top-links">
@@ -100,7 +100,7 @@
                 {% for room in rooms %}
                 <tr class="{% if not room.is_active %}row-inactive{% endif %}">
                     <td>
-                        <a href="/calendar/?filter=all&room_id={{ room.id }}" class="room-name-link">{{ room.name }}</a>
+                        <a href="/calendar/?filter=all&amp;room_id={{ room.id }}" class="room-name-link">{{ room.name }}</a>
                     </td>
                     <td class="center">{{ room.capacity }}名</td>
                     <td>
@@ -132,4 +132,4 @@
 
 </div>
 </body>
-</html>
+</h

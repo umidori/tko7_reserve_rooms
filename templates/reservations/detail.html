@@ -12,7 +12,7 @@
 
 <div class="logo between">
     <div class="header-logo">
-        <img src="{% static 'image/bold-logo.webp' %}" alt="logo">
+        <a href="/"><img src="{% static 'image/bold-logo.webp' %}" alt="logo"></a>
         <span>社内会議室予約システム：予約詳細</span>
     </div>
     <div class="top-links">
@@ -106,6 +106,13 @@
       <div class="section-body">
 
         <div class="form-row">
+          <div class="label">予約者名</div>
+          <div class="input wide">
+            <input type="text" value="{{ reservation.reserved_by }}" disabled>
+          </div>
+        </div>
+
+        <div class="form-row">
           <div class="label">件名</div>
           <div class="input wide">
             <input type="text" value="{{ reservation.title }}" disabled>
@@ -153,15 +160,4 @@
 
         <form method="post" action="{% url 'reservation_cancel' reservation.pk %}" class="cancel-form">
           {% csrf_token %}
-          <button type="submit" class="btn btn-danger btn-lg">
-            予約をキャンセルする
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="{% static 'js/reservations.js' %}"></script>
-</body>
-</html>
+          <button type="submit" cl

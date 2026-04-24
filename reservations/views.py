@@ -215,7 +215,7 @@ class ReservationCreateView(CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        response = super().form_valid(form)
+        form.instance.reserved_by = self.request.user.name
         return super().form_valid(form)
 
     def get_success_url(self):

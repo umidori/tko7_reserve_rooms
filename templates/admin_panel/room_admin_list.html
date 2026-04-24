@@ -13,11 +13,11 @@
 <!-- ロゴ（「戻る｜ログアウト」を右端に配置） -->
 <div class="logo between">
     <div class="header-logo">
-        <img src="{% static 'image/bold-logo.webp' %}" alt="logo">
+        <a href="/"><img src="{% static 'image/bold-logo.webp' %}" alt="logo"></a>
         <span>社内会議室予約システム：会議室マスタ管理</span>
     </div>
     <div class="top-links">
-        <a href="{% url 'home' %}">戻る</a>
+        <a href="/">戻る</a>
         <span class="sep">｜</span>
         <form method="post" action="{% url 'logout' %}" class="logout-form">
             {% csrf_token %}
