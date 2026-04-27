@@ -124,6 +124,7 @@
   font-size: 14px;
   background-color: #eef2f7;
   box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
   color: #333;
 }
 
@@ -217,4 +218,16 @@
   display: flex;
   gap: 10px;
   margin-top: 28px;
+}
+
+/* ===== ユーザー管理フォーム用 ===== */
+.login-id-display {
+  padding: 8px 12px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #666;
+  font-family: "Segoe UI", sans-serif;
+  display: inline-block;
 }
