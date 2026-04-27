@@ -95,8 +95,7 @@
                   <td>
                     {% if row.role == 'admin' %}
                       管理者
-                    {% elif row.role == 'user'
-                      %}
+                    {% elif row.role == 'user' %}
                       一般
                     {% else %}
                       {{ row.role|default:"―" }}
