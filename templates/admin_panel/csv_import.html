@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
@@ -13,9 +13,9 @@
     <!-- ヘッダー -->
     <div class="logo between">
       <div class="header-logo">
-        <a href="/"
-          ><img src="{% static 'image/bold-logo.webp' %}" alt="logo"
-        /></a>
+        <a href="/">
+          <img src="{% static 'image/bold-logo.webp' %}" alt="logo" />
+        </a>
         <span>社内会議室予約システム：CSVインポート</span>
       </div>
       <div class="top-links">
@@ -27,7 +27,6 @@
         </form>
       </div>
     </div>
-
     <!-- メインコンテナ -->
     <div class="calendar-container">
       <!-- ツールバー -->
@@ -36,147 +35,121 @@
           <span class="page-title">ユーザー一括登録（CSVインポート）</span>
         </div>
       </div>
-
       <!-- フラッシュメッセージ（フォームエラー） -->
       {% if form.non_field_errors %}
-      <div class="flash-error">
-        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
-      </div>
-      {% endif %} {% if form.csv_file.errors %}
-      <div class="flash-error">
-        {% for error in form.csv_file.errors %}{{ error }}{% endfor %}
-      </div>
+        <div class="flash-error">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
       {% endif %}
-
+      {% if form.csv_file.errors %}
+        <div class="flash-error">
+          {% for error in form.csv_file.errors %}{{ error }}{% endfor %}
+        </div>
+      {% endif %}
       <div class="admin-card" style="padding: 0; overflow: hidden">
         <!-- ===== STEP 1 ===== -->
         <div class="list-header">STEP1　CSVファイルを選択してアップロード</div>
         <div class="step-body">
           <p class="format-desc">
             対応フォーマット：<code>UTF-8</code> または
-            <code>Shift-JIS</code>　／ 列構成：<code
-              >ユーザーID, 氏名, 権限(admin/user), 所属名（任意）</code
-            >
+            <code>Shift-JIS</code>　／ 列構成：<code>ユーザーID, 氏名, 権限(admin/user), 所属名（任意）</code>
             　※ 1行目はヘッダー行としてスキップされます
           </p>
-          <form
-            method="post"
-            enctype="multipart/form-data"
-            action="{% url 'csv_import' %}"
-          >
+          <form method="post"
+                enctype="multipart/form-data"
+                action="{% url 'csv_import' %}">
             {% csrf_token %}
             <div class="file-input-row">
               {{ form.csv_file }}
-              <button type="submit" class="btn btn-primary btn-md">
-                アップロード
-              </button>
+              <button type="submit" class="btn btn-primary btn-md">アップロード</button>
             </div>
           </form>
         </div>
-
         {% if preview_rows is not None %}
-
-        <!-- ===== STEP 2 ===== -->
-        <div class="list-header" style="border-top: 1px solid #dce8f5">
-          STEP2　プレビュー確認（取り込み前に内容を確認してください）
-        </div>
-
-        <!-- サマリー行 -->
-        <div class="preview-summary">
-          <span class="summary-valid">取込対象：{{ valid_count }}件</span>
-          {% if error_count > 0 %}
-          <span class="summary-error"
-            >エラー：{{ error_count }}件（スキップ）</span
-          >
-          {% endif %}
-        </div>
-
-        <!-- プレビューテーブル -->
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>ユーザーID</th>
-              <th>氏名</th>
-              <th>権限</th>
-              <th>所属名</th>
-              <th class="center">取込判定</th>
-              <th>備考</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in preview_rows %}
-            <tr class="{% if not row.is_valid %}row-error{% endif %}">
-              <td>{{ row.login_id|default:"（空）" }}</td>
-              <td><strong>{{ row.name|default:"（空）" }}</strong></td>
-              <td>
-                {% if row.role == 'admin' %}管理者 {% elif row.role == 'user'
-                %}一般 {% else %}{{ row.role|default:"―" }} {% endif %}
-              </td>
-              <td>{{ row.dept_name|default:"―" }}</td>
-              <td class="center">
-                {% if row.is_valid %}
-                <span class="badge badge-active">OK</span>
-                {% else %}
-                <span class="badge badge-stopped">ERROR</span>
-                {% endif %}
-              </td>
-              <td style="font-size: 13px">{{ row.error|default:"" }}</td>
-            </tr>
-            {% empty %}
-            <tr class="empty-row">
-              <td colspan="6">データがありません</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-
-        <!-- ===== STEP 3 ===== -->
-        <div class="list-header" style="border-top: 1px solid #dce8f5">
-          STEP3　インポート実行
-        </div>
-        <div class="step-body">
-          {% if error_count > 0 %}
-          <p class="import-note">
-            エラー行（{{ error_count }}件）はスキップされ、有効な {{ valid_count
-            }}件のみ登録されます。
-          </p>
-          {% endif %}
-
-          <div
-            class="action-group"
-            style="justify-content: flex-start; gap: 10px"
-          >
-            <a href="{% url 'user_admin_list' %}" class="btn btn-light btn-md">
-              キャンセル
-            </a>
-            {% if valid_count > 0 %}
-            <form
-              method="post"
-              action="{% url 'csv_import_execute' %}"
-              class="logout-form"
-            >
-              {% csrf_token %}
-              <button
-                type="submit"
-                class="btn btn-primary btn-md"
-                onclick="return confirm('{{ valid_count }}件のユーザーを登録します。よろしいですか？')"
-              >
-                インポートを実行する（{{ valid_count }}件）
-              </button>
-            </form>
-            {% else %}
-            <button
-              type="button"
-              class="btn btn-primary btn-md"
-              disabled
-              style="opacity: 0.4; cursor: not-allowed"
-            >
-              インポートを実行する（有効行なし）
-            </button>
-            {% endif %}
+          <!-- ===== STEP 2 ===== -->
+          <div class="list-header" style="border-top: 1px solid #dce8f5">STEP2　プレビュー確認（取り込み前に内容を確認してください）</div>
+          <!-- サマリー行 -->
+          <div class="preview-summary">
+            <span class="summary-valid">取込対象：{{ valid_count }}件</span>
+            {% if error_count > 0 %}<span class="summary-error">エラー：{{ error_count }}件（スキップ）</span>{% endif %}
           </div>
-        </div>
-
+          <!-- プレビューテーブル -->
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ユーザーID</th>
+                <th>氏名</th>
+                <th>権限</th>
+                <th>所属名</th>
+                <th class="center">取込判定</th>
+                <th>備考</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in preview_rows %}
+                <tr class="{% if not row.is_valid %}row-error{% endif %}">
+                  <td>{{ row.login_id|default:"（空）" }}</td>
+                  <td>
+                    <strong>{{ row.name|default:"（空）" }}</strong>
+                  </td>
+                  <td>
+                    {% if row.role == 'admin' %}
+                      管理者
+                    {% elif row.role == 'user'
+                      %}
+                      一般
+                    {% else %}
+                      {{ row.role|default:"―" }}
+                    {% endif %}
+                  </td>
+                  <td>{{ row.dept_name|default:"―" }}</td>
+                  <td class="center">
+                    {% if row.is_valid %}
+                      <span class="badge badge-active">OK</span>
+                    {% else %}
+                      <span class="badge badge-stopped">ERROR</span>
+                    {% endif %}
+                  </td>
+                  <td style="font-size: 13px">{{ row.error|default:"" }}</td>
+                </tr>
+              {% empty %}
+                <tr class="empty-row">
+                  <td colspan="6">データがありません</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <!-- ===== STEP 3 ===== -->
+          <div class="list-header" style="border-top: 1px solid #dce8f5">STEP3　インポート実行</div>
+          <div class="step-body">
+            {% if error_count > 0 %}
+              <p class="import-note">
+                エラー行（{{ error_count }}件）はスキップされ、有効な {{ valid_count
+                }}件のみ登録されます。
+              </p>
+            {% endif %}
+            <div class="action-group" style="justify-content: flex-start; gap: 10px">
+              <a href="{% url 'user_admin_list' %}" class="btn btn-light btn-md">キャンセル</a>
+              {% if valid_count > 0 %}
+                <form method="post"
+                      action="{% url 'csv_import_execute' %}"
+                      class="logout-form">
+                  {% csrf_token %}
+                  <button type="submit"
+                          class="btn btn-primary btn-md"
+                          onclick="return confirm('{{ valid_count }}件のユーザーを登録します。よろしいですか？')">
+                    インポートを実行する（{{ valid_count }}件）
+                  </button>
+                </form>
+              {% else %}
+                <button type="button"
+                        class="btn btn-primary btn-md"
+                        disabled
+                        style="opacity: 0.4;
+                               cursor: not-allowed">インポートを実行する（有効行なし）</button>
+              {% endif %}
+            </div>
+          </div>
         {% endif %}
       </div>
       <!-- /.admin-card -->
