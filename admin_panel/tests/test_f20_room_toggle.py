@@ -9,6 +9,7 @@ URL name  : room_toggle_active  ->  /admin-panel/rooms/<pk>/toggle-active/
   - is_active を反転（True -> False / False -> True）
   - 成功後 -> 会議室一覧へリダイレクト
 """
+
 from django.test import TestCase
 from django.urls import reverse
 
@@ -21,15 +22,15 @@ class TestF20RoomToggleActive(TestCase):
 
     def setUp(self):
         self.admin = User.objects.create_user(
-            login_id='admin@example.com',
-            name='管理者',
-            password='AdminPass123',
-            role='admin',
+            login_id="admin@example.com",
+            name="管理者",
+            password="AdminPass123",
+            role="admin",
         )
-        self.room = Room.objects.create(name='会議室A', capacity=10, is_active=True)
-        self.url = reverse('room_toggle_active', kwargs={'pk': self.room.pk})
-        self.list_url = reverse('room_admin_list')
-        self.client.login(username='admin@example.com', password='AdminPass123')
+        self.room = Room.objects.create(name="会議室A", capacity=10, is_active=True)
+        self.url = reverse("room_toggle_active", kwargs={"pk": self.room.pk})
+        self.list_url = reverse("room_admin_list")
+        self.client.login(username="admin@example.com", password="AdminPass123")
 
     # ------------------------------------------------------------------ 正常系
 
@@ -56,7 +57,7 @@ class TestF20RoomToggleActive(TestCase):
 
     def test_nonexistent_room_returns_404(self):
         """異常系: 存在しない pk -> 404 が返ること"""
-        url = reverse('room_toggle_active', kwargs={'pk': 9999})
+        url = reverse("room_toggle_active", kwargs={"pk": 9999})
         response = self.client.post(url)
         self.assertEqual(response.status_code, 404)
 
@@ -67,8 +68,10 @@ class TestF20RoomToggleActive(TestCase):
 
     def test_non_admin_gets_403(self):
         """異常系: 一般ユーザーで POST -> 403 が返ること"""
-        User.objects.create_user(login_id='user@example.com', name='一般', password='Pass123', role='user')
-        self.client.login(username='user@example.com', password='Pass123')
+        User.objects.create_user(
+            login_id="user@example.com", name="一般", password="Pass123", role="user"
+        )
+        self.client.login(username="user@example.com", password="Pass123")
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, 403)
 
@@ -78,5 +81,5 @@ class TestF20RoomToggleActive(TestCase):
         response = self.client.post(self.url)
         self.assertRedirects(
             response,
-            '/accounts/login/?next={}'.format(self.url),
+            "/accounts/login/?next={}".format(self.url),
         )

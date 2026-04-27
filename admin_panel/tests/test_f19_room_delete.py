@@ -9,6 +9,7 @@ URL name  : room_delete  ->  /admin-panel/rooms/<pk>/delete/
   - 会議室を削除（紐づく予約も CASCADE 削除）
   - 成功後 -> 会議室一覧へリダイレクト
 """
+
 from datetime import timedelta
 
 from django.test import TestCase
@@ -24,15 +25,15 @@ class TestF19RoomDelete(TestCase):
 
     def setUp(self):
         self.admin = User.objects.create_user(
-            login_id='admin@example.com',
-            name='管理者',
-            password='AdminPass123',
-            role='admin',
+            login_id="admin@example.com",
+            name="管理者",
+            password="AdminPass123",
+            role="admin",
         )
-        self.room = Room.objects.create(name='会議室A', capacity=10, is_active=True)
-        self.url = reverse('room_delete', kwargs={'pk': self.room.pk})
-        self.list_url = reverse('room_admin_list')
-        self.client.login(username='admin@example.com', password='AdminPass123')
+        self.room = Room.objects.create(name="会議室A", capacity=10, is_active=True)
+        self.url = reverse("room_delete", kwargs={"pk": self.room.pk})
+        self.list_url = reverse("room_admin_list")
+        self.client.login(username="admin@example.com", password="AdminPass123")
 
     # ------------------------------------------------------------------ 正常系
 
@@ -52,8 +53,8 @@ class TestF19RoomDelete(TestCase):
         rsv = Reservation.objects.create(
             room=self.room,
             user=self.admin,
-            reserved_by='管理者',
-            title='テスト予約',
+            reserved_by="管理者",
+            title="テスト予約",
             start_at=now + timedelta(days=1),
             end_at=now + timedelta(days=1, hours=1),
         )
@@ -64,7 +65,7 @@ class TestF19RoomDelete(TestCase):
 
     def test_delete_nonexistent_room_returns_404(self):
         """異常系: 存在しない pk -> 404 が返ること"""
-        url = reverse('room_delete', kwargs={'pk': 9999})
+        url = reverse("room_delete", kwargs={"pk": 9999})
         response = self.client.post(url)
         self.assertEqual(response.status_code, 404)
 
@@ -75,8 +76,10 @@ class TestF19RoomDelete(TestCase):
 
     def test_non_admin_gets_403(self):
         """異常系: 一般ユーザーで POST -> 403 が返ること"""
-        User.objects.create_user(login_id='user@example.com', name='一般', password='Pass123', role='user')
-        self.client.login(username='user@example.com', password='Pass123')
+        User.objects.create_user(
+            login_id="user@example.com", name="一般", password="Pass123", role="user"
+        )
+        self.client.login(username="user@example.com", password="Pass123")
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, 403)
 
@@ -86,5 +89,5 @@ class TestF19RoomDelete(TestCase):
         response = self.client.post(self.url)
         self.assertRedirects(
             response,
-            '/accounts/login/?next={}'.format(self.url),
+            "/accounts/login/?next={}".format(self.url),
         )

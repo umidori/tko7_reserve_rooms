@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ユーザー管理 | 会議室予約システム</title>
@@ -8,297 +8,290 @@
     <link rel="stylesheet" href="{% static 'css/common.css' %}">
     <link rel="stylesheet" href="{% static 'css/room_admin.css' %}">
     <link rel="stylesheet" href="{% static 'css/user_list.css' %}">
-</head>
-<body>
-
-<!-- ヘッダー -->
-<div class="logo between">
-    <div class="header-logo">
-        <a href="/"><img src="{% static 'image/bold-logo.webp' %}" alt="logo"></a>
+  </head>
+  <body>
+    <!-- ヘッダー -->
+    <div class="logo between">
+      <div class="header-logo">
+        <a href="/">
+          <img src="{% static 'image/bold-logo.webp' %}" alt="logo">
+        </a>
         <span>社内会議室予約システム：ユーザー管理</span>
-    </div>
-    <div class="top-links">
+      </div>
+      <div class="top-links">
         <a href="/">戻る</a>
         <span class="sep">｜</span>
         <form method="post" action="{% url 'logout' %}" class="logout-form">
-            {% csrf_token %}
-            <button type="submit" class="logout-btn">ログアウト</button>
+          {% csrf_token %}
+          <button type="submit" class="logout-btn">ログアウト</button>
         </form>
+      </div>
     </div>
-</div>
-
-<!-- メインコンテナ -->
-<div class="calendar-container">
-
-    <!-- ツールバー -->
-    <div class="calendar-toolbar">
+    <!-- メインコンテナ -->
+    <div class="calendar-container">
+      <!-- ツールバー -->
+      <div class="calendar-toolbar">
         <div class="toolbar-left">
-            <span class="page-title">ユーザー管理</span>
+          <span class="page-title">ユーザー管理</span>
         </div>
         <div class="toolbar-right">
-            <a href="{% url 'csv_import' %}" class="btn btn-light btn-md" style="margin-right:8px;">
-                CSVインポート画面へ &rsaquo;
-            </a>
-            <button type="button" class="btn btn-primary btn-md" onclick="openUserModal('create')">
-                ＋ ユーザーを追加
-            </button>
+          <a href="{% url 'csv_import' %}"
+             class="btn btn-light btn-md"
+             style="margin-right:8px">CSVインポート画面へ &rsaquo;</a>
+          <button type="button"
+                  class="btn btn-primary btn-md"
+                  onclick="openUserModal('create')">＋ ユーザーを追加</button>
         </div>
-    </div>
-
-    <!-- フラッシュメッセージ -->
-    {% if messages %}
-    <div style="margin-bottom:12px;">
-        {% for message in messages %}
+      </div>
+      <!-- フラッシュメッセージ -->
+      {% if messages %}
+        <div style="margin-bottom:12px;">
+          {% for message in messages %}
             {% if message.tags == 'error' %}
-                <div class="flash-error">{{ message }}</div>
+              <div class="flash-error">{{ message }}</div>
             {% else %}
-                <div class="flash-success">{{ message }}</div>
+              <div class="flash-success">{{ message }}</div>
             {% endif %}
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- 検索フォーム -->
-    <form method="get" action="">
-        <div class="search-bar">
-            <input type="text" name="q" value="{{ q }}" placeholder="氏名で検索">
-            <button type="submit" class="btn btn-primary btn-sm">検索</button>
-            <a href="{% url 'user_admin_list' %}" class="btn btn-light btn-sm">クリア</a>
+          {% endfor %}
         </div>
-    </form>
-
-    <!-- ユーザー一覧テーブル -->
-    <div class="admin-card">
+      {% endif %}
+      <!-- 検索フォーム -->
+      <form method="get" action="">
+        <div class="search-bar">
+          <input type="text" name="q" value="{{ q }}" placeholder="氏名で検索">
+          <button type="submit" class="btn btn-primary btn-sm">検索</button>
+          <a href="{% url 'user_admin_list' %}" class="btn btn-light btn-sm">クリア</a>
+        </div>
+      </form>
+      <!-- ユーザー一覧テーブル -->
+      <div class="admin-card">
         <div class="list-header">
-            全ユーザー {{ total_count }}名
-            {% if q %}（「{{ q }}」で絞り込み：{{ page_obj.paginator.count }}件）{% endif %}
+          全ユーザー {{ total_count }}名
+          {% if q %}（「{{ q }}」で絞り込み：{{ page_obj.paginator.count }}件）{% endif %}
         </div>
         <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>ユーザーID</th>
-                    <th>氏名</th>
-                    <th>権限</th>
-                    <th>所属</th>
-                    <th>最終ログイン</th>
-                    <th class="center">ステータス</th>
-                    <th class="center">操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr class="{% if not user.is_active %}row-inactive{% endif %}">
-                    <td>{{ user.login_id }}</td>
-                    <td><strong>{{ user.name }}</strong></td>
-                    <td>{% if user.role == 'admin' %}管理者{% else %}一般{% endif %}</td>
-                    <td>{% if user.department %}{{ user.department.name }}{% else %}―{% endif %}</td>
-                    <td>{% if user.last_login %}{{ user.last_login|date:"Y/m/d" }}{% else %}―{% endif %}</td>
-                    <td class="center">
+          <thead>
+            <tr>
+              <th>ユーザーID</th>
+              <th>氏名</th>
+              <th>権限</th>
+              <th>所属</th>
+              <th>最終ログイン</th>
+              <th class="center">ステータス</th>
+              <th class="center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+              <tr class="{% if not user.is_active %}row-inactive{% endif %}">
+                <td>{{ user.login_id }}</td>
+                <td>
+                  <strong>{{ user.name }}</strong>
+                </td>
+                <td>
+                  {% if user.role == 'admin' %}
+                    管理者
+                  {% else %}
+                    一般
+                  {% endif %}
+                </td>
+                <td>
+                  {% if user.department %}
+                    {{ user.department.name }}
+                  {% else %}
+                    ―
+                  {% endif %}
+                </td>
+                <td>
+                  {% if user.last_login %}
+                    {{ user.last_login|date:"Y/m/d" }}
+                  {% else %}
+                    ―
+                  {% endif %}
+                </td>
+                <td class="center">
+                  {% if user.is_active %}
+                    <span class="badge badge-active">有効</span>
+                  {% else %}
+                    <span class="badge badge-stopped">無効</span>
+                  {% endif %}
+                </td>
+                <td class="center">
+                  <div class="action-group">
+                    {# F-15: 編集ボタン #}
+                    <button type="button"
+                            class="btn btn-secondary btn-sm"
+                            onclick="openUserModal('edit', this)"
+                            data-user-id="{{ user.pk }}"
+                            data-login-id="{{ user.login_id }}"
+                            data-name="{{ user.name|escapejs }}"
+                            data-role="{{ user.role }}"
+                            data-department-id="{{ user.department_id|default:'' }}">編集</button>
+                    {# F-16: 有効化 / 無効化 #}
+                    {% if user.pk == request.user.pk %}
+                      <button type="button"
+                              class="btn btn-light btn-sm"
+                              style="cursor:not-allowed;
+                                     opacity:0.45"
+                              disabled
+                              title="自分自身は操作できません">
                         {% if user.is_active %}
-                            <span class="badge badge-active">有効</span>
+                          無効化
                         {% else %}
-                            <span class="badge badge-stopped">無効</span>
+                          有効化
                         {% endif %}
-                    </td>
-                    <td class="center">
-                        <div class="action-group">
-
-                            {# F-15: 編集ボタン #}
-                            <button type="button"
-                                    class="btn btn-secondary btn-sm"
-                                    onclick="openUserModal('edit', this)"
-                                    data-user-id="{{ user.pk }}"
-                                    data-login-id="{{ user.login_id }}"
-                                    data-name="{{ user.name|escapejs }}"
-                                    data-role="{{ user.role }}"
-                                    data-department-id="{{ user.department_id|default:'' }}">編集</button>
-
-                            {# F-16: 有効化 / 無効化 #}
-                            {% if user.pk == request.user.pk %}
-                                <button type="button"
-                                        class="btn btn-light btn-sm"
-                                        style="cursor:not-allowed; opacity:0.45;"
-                                        disabled
-                                        title="自分自身は操作できません">
-                                    {% if user.is_active %}無効化{% else %}有効化{% endif %}
-                                </button>
-                            {% else %}
-                                <form method="post"
-                                      action="{% url 'user_toggle_active' user.pk %}"
-                                      class="logout-form">
-                                    {% csrf_token %}
-                                    {% if user.is_active %}
-                                        <button type="submit"
-                                                class="btn btn-outline-danger btn-sm"
-                                                onclick="return confirm('「{{ user.name|escapejs }}」を無効化しますか？')">
-                                            無効化
-                                        </button>
-                                    {% else %}
-                                        <button type="submit"
-                                                class="btn btn-outline-primary btn-sm">
-                                            有効化
-                                        </button>
-                                    {% endif %}
-                                </form>
-                            {% endif %}
-
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr class="empty-row">
-                    <td colspan="7">該当するユーザーが見つかりません</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+                      </button>
+                    {% else %}
+                      <form method="post"
+                            action="{% url 'user_toggle_active' user.pk %}"
+                            class="logout-form">
+                        {% csrf_token %}
+                        {% if user.is_active %}
+                          <button type="submit"
+                                  class="btn btn-outline-danger btn-sm"
+                                  onclick="return confirm('「{{ user.name|escapejs }}」を無効化しますか？')">無効化</button>
+                        {% else %}
+                          <button type="submit" class="btn btn-outline-primary btn-sm">有効化</button>
+                        {% endif %}
+                      </form>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr class="empty-row">
+                <td colspan="7">該当するユーザーが見つかりません</td>
+              </tr>
+            {% endfor %}
+          </tbody>
         </table>
-    </div>
-
-    <!-- ページネーション -->
-    {% if is_paginated %}
-    <div class="pagination">
-        {% if page_obj.has_previous %}
+      </div>
+      <!-- ページネーション -->
+      {% if is_paginated %}
+        <div class="pagination">
+          {% if page_obj.has_previous %}
             <a href="?{% if q %}q={{ q }}&{% endif %}page=1">&lt;&lt;</a>
             <a href="?{% if q %}q={{ q }}&{% endif %}page={{ page_obj.previous_page_number }}">&lt;</a>
-        {% else %}
+          {% else %}
             <span class="disabled">&lt;&lt;</span>
             <span class="disabled">&lt;</span>
-        {% endif %}
-
-        {% for num in paginator.page_range %}
+          {% endif %}
+          {% for num in paginator.page_range %}
             {% if page_obj.number == num %}
-                <span class="current">{{ num }}</span>
+              <span class="current">{{ num }}</span>
             {% elif num > page_obj.number|add:'-4' and num < page_obj.number|add:'4' %}
-                <a href="?{% if q %}q={{ q }}&{% endif %}page={{ num }}">{{ num }}</a>
+              <a href="?{% if q %}q={{ q }}&{% endif %}page={{ num }}">{{ num }}</a>
             {% endif %}
-        {% endfor %}
-
-        {% if page_obj.has_next %}
+          {% endfor %}
+          {% if page_obj.has_next %}
             <a href="?{% if q %}q={{ q }}&{% endif %}page={{ page_obj.next_page_number }}">&gt;</a>
             <a href="?{% if q %}q={{ q }}&{% endif %}page={{ paginator.num_pages }}">&gt;&gt;</a>
-        {% else %}
+          {% else %}
             <span class="disabled">&gt;</span>
             <span class="disabled">&gt;&gt;</span>
-        {% endif %}
+          {% endif %}
+        </div>
+      {% endif %}
     </div>
-    {% endif %}
-
-</div><!-- /.calendar-container -->
-
-
-<!-- ==========================================================
+    <!-- /.calendar-container -->
+    <!-- ==========================================================
      ユーザー追加・編集モーダル（F-15）
      ========================================================== -->
-<div class="modal-overlay {% if modal_open %}open{% endif %}"
-     id="userFormModal"
-     onclick="closeUserModalOnOverlay(event)">
-    <div class="modal-box modal-box--form">
-
+    <div class="modal-overlay {% if modal_open %}open{% endif %}"
+         id="userFormModal"
+         onclick="closeUserModalOnOverlay(event)">
+      <div class="modal-box modal-box--form">
         <h5 id="userFormTitle">
-            {% if modal_mode == 'edit' %}ユーザーを編集{% else %}ユーザーを追加{% endif %}
+          {% if modal_mode == 'edit' %}
+            ユーザーを編集
+          {% else %}
+            ユーザーを追加
+          {% endif %}
         </h5>
-
         <form id="userForm"
               method="post"
               action="{% if form_action_url %}{{ form_action_url }}{% else %}{% url 'user_create' %}{% endif %}"
               novalidate>
-            {% csrf_token %}
-
-            {% if modal_form.non_field_errors %}
+          {% csrf_token %}
+          {% if modal_form.non_field_errors %}
             <div class="alert-danger" style="margin-bottom:12px;">
-                {% for error in modal_form.non_field_errors %}
-                    <p style="margin:0;">{{ error }}</p>
-                {% endfor %}
+              {% for error in modal_form.non_field_errors %}<p style="margin:0;">{{ error }}</p>{% endfor %}
             </div>
-            {% endif %}
-
-            <table class="form-table">
-
-                <!-- ユーザーID -->
-                <tr>
-                    <th>ユーザーID <span class="required">*</span></th>
-                    <td>
-                        <div id="div-login-id-input"
-                             {% if modal_open and modal_mode == 'edit' %}style="display:none;"{% endif %}>
-                            <input type="text"
-                                   name="login_id"
-                                   id="id_modal_login_id"
-                                   placeholder="半角英数字 50文字以内"
-                                   autocomplete="off"
-                                   maxlength="50"
-                                   value="{{ modal_form.data.login_id|default:'' }}">
-                            {% if modal_open and modal_mode == 'create' %}
-                                {% for e in modal_form.errors.login_id %}
-                                    <div class="error-text">{{ e }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                        <div id="div-login-id-display"
-                             {% if not modal_open or modal_mode == 'create' %}style="display:none;"{% endif %}>
-                            <span class="login-id-display" id="login-id-text">
-                                {{ edit_user_login_id|default:'' }}
-                            </span>
-                            <div style="font-size:12px;color:#999;margin-top:4px;">
-                                ユーザーIDは変更できません
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-
-                <!-- 氏名 -->
-                <tr>
-                    <th>氏名 <span class="required">*</span></th>
-                    <td>
-                        {{ modal_form.name }}
-                        {% for e in modal_form.name.errors %}
-                            <div class="error-text">{{ e }}</div>
-                        {% endfor %}
-                    </td>
-                </tr>
-
-                <!-- 権限 -->
-                <tr>
-                    <th>権限 <span class="required">*</span></th>
-                    <td>
-                        {{ modal_form.role }}
-                        {% for e in modal_form.role.errors %}
-                            <div class="error-text">{{ e }}</div>
-                        {% endfor %}
-                    </td>
-                </tr>
-
-                <!-- 所属 -->
-                <tr>
-                    <th>所属</th>
-                    <td>
-                        {{ modal_form.department }}
-                        {% for e in modal_form.department.errors %}
-                            <div class="error-text">{{ e }}</div>
-                        {% endfor %}
-                    </td>
-                </tr>
-
-            </table>
-
-            <div class="modal-footer" style="margin-top:20px;">
-                <button type="button" class="btn btn-light btn-md" onclick="closeUserModal()">キャンセル</button>
-                <button type="submit" id="userFormSubmit" class="btn btn-primary btn-md">
-                    {% if modal_mode == 'edit' %}保存する{% else %}追加{% endif %}
-                </button>
-            </div>
-
+          {% endif %}
+          <table class="form-table">
+            <!-- ユーザーID -->
+            <tr>
+              <th>
+                ユーザーID <span class="required">*</span>
+              </th>
+              <td>
+                <div id="div-login-id-input"
+                     {% if modal_open and modal_mode == 'edit' %}style="display:none;"{% endif %}>
+                  <input type="text"
+                         name="login_id"
+                         id="id_modal_login_id"
+                         placeholder="半角英数字 50文字以内"
+                         autocomplete="off"
+                         maxlength="50"
+                         value="{{ modal_form.data.login_id|default:'' }}">
+                  {% if modal_open and modal_mode == 'create' %}
+                    {% for e in modal_form.errors.login_id %}<div class="error-text">{{ e }}</div>{% endfor %}
+                  {% endif %}
+                </div>
+                <div id="div-login-id-display"
+                     {% if not modal_open or modal_mode == 'create' %}style="display:none;"{% endif %}>
+                  <span class="login-id-display" id="login-id-text">{{ edit_user_login_id|default:'' }}</span>
+                  <div style="font-size:12px;color:#999;margin-top:4px;">ユーザーIDは変更できません</div>
+                </div>
+              </td>
+            </tr>
+            <!-- 氏名 -->
+            <tr>
+              <th>
+                氏名 <span class="required">*</span>
+              </th>
+              <td>
+                {{ modal_form.name }}
+                {% for e in modal_form.name.errors %}<div class="error-text">{{ e }}</div>{% endfor %}
+              </td>
+            </tr>
+            <!-- 権限 -->
+            <tr>
+              <th>
+                権限 <span class="required">*</span>
+              </th>
+              <td>
+                {{ modal_form.role }}
+                {% for e in modal_form.role.errors %}<div class="error-text">{{ e }}</div>{% endfor %}
+              </td>
+            </tr>
+            <!-- 所属 -->
+            <tr>
+              <th>所属</th>
+              <td>
+                {{ modal_form.department }}
+                {% for e in modal_form.department.errors %}<div class="error-text">{{ e }}</div>{% endfor %}
+              </td>
+            </tr>
+          </table>
+          <div class="modal-footer" style="margin-top:20px;">
+            <button type="button" class="btn btn-light btn-md" onclick="closeUserModal()">キャンセル</button>
+            <button type="submit" id="userFormSubmit" class="btn btn-primary btn-md">
+              {% if modal_mode == 'edit' %}
+                保存する
+              {% else %}
+                追加
+              {% endif %}
+            </button>
+          </div>
         </form>
+      </div>
     </div>
-</div>
-
-
-<!-- JS に渡す URL 定数 -->
-<div id="js-user-urls"
-     data-create-url="{% url 'user_create' %}"
-     data-edit-url-template="{% url 'user_edit' pk=0 %}"
-     style="display:none;"></div>
-
-<script src="{% static 'js/user_admin.js' %}"></script>
-
-</body>
+    <!-- JS に渡す URL 定数 -->
+    <div id="js-user-urls"
+         data-create-url="{% url 'user_create' %}"
+         data-edit-url-template="{% url 'user_edit' pk=0 %}"
+         style="display:none"></div>
+    <script src="{% static 'js/user_admin.js' %}"></script>
+  </body>
 </html>

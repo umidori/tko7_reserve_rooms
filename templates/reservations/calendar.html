@@ -1,154 +1,151 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>日次カレンダー</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/common.css' %}">
     <link rel="stylesheet" href="{% static 'css/calendar.css' %}">
-</head>
-<body>
-
-<!-- ロゴ -->
-<div class="logo between">
-    <div class="header-logo">
-        <a href="/"><img src="{% static 'image/bold-logo.webp' %}" alt="logo"></a>
+  </head>
+  <body>
+    <!-- ロゴ -->
+    <div class="logo between">
+      <div class="header-logo">
+        <a href="/">
+          <img src="{% static 'image/bold-logo.webp' %}" alt="logo">
+        </a>
         <span>社内会議室予約システム：日次カレンダー</span>
+      </div>
     </div>
-</div>
-
-<!-- カレンダーコンテナ -->
-<div class="calendar-container">
-
-    <!-- ツールバー -->
-    <div class="calendar-toolbar">
+    <!-- カレンダーコンテナ -->
+    <div class="calendar-container">
+      <!-- ツールバー -->
+      <div class="calendar-toolbar">
         <div class="toolbar-left">
-            <a href="?date={{ today|date:'Y-m-d' }}&filter={{ filter_value }}" class="nav-btn">今日</a>
-            <a href="?date={{ prev_date|date:'Y-m-d' }}&filter={{ filter_value }}" class="nav-btn">←</a>
-            <a href="?date={{ next_date|date:'Y-m-d' }}&filter={{ filter_value }}" class="nav-btn">→</a>
+          <a href="?date={{ today|date:'Y-m-d' }}&filter={{ filter_value }}"
+             class="nav-btn">今日</a>
+          <a href="?date={{ prev_date|date:'Y-m-d' }}&filter={{ filter_value }}"
+             class="nav-btn">←</a>
+          <a href="?date={{ next_date|date:'Y-m-d' }}&filter={{ filter_value }}"
+             class="nav-btn">→</a>
         </div>
         <div class="toolbar-center">
-            <span class="current-date">{{ target_date|date:"n月j日（D）" }}</span>
+          <span class="current-date">{{ target_date|date:"n月j日（D）" }}</span>
         </div>
         <div class="toolbar-right">
-            <!-- 会議室フィルタードロップダウン -->
-            <select class="filter-select" id="roomFilterSelect"
-                    data-date="{{ target_date|date:'Y-m-d' }}"
-                    onchange="location.href='?date='+this.dataset.date+'&filter='+this.value">
-                <option value="all" {% if filter_value == 'all' %}selected{% endif %}>全会議室</option>
-                {% for dept in departments %}
-                <option value="{{ dept.id }}"
-                        {% if filter_value == dept.id|stringformat:'s' %}selected{% endif %}>
-                    {{ dept.name }}
-                </option>
-                {% endfor %}
-            </select>
-            <button class="dots-btn" onclick="toggleNavMenu(event)">•••</button>
-            <div class="nav-dropdown" id="navMenu">
-                <a href="{% url 'rooms:room_list' %}">会議室一覧</a>
-                <a href="{% url 'my_reservations' %}">自分の予約</a>
-                {% if request.user.is_staff %}
-                <div class="nav-submenu-wrapper">
-                    <button class="nav-submenu-trigger" onclick="toggleAdminSubmenu(event)">
-                        管理メニュー •••
-                    </button>
-                    <div class="nav-submenu" id="adminSubmenu">
-                        <a href="{% url 'user_admin_list' %}">ユーザー管理</a>
-                        <a href="{% url 'room_admin_list' %}">会議室マスタ管理</a>
-                        <a href="{% url 'all_reservation_list' %}">全予約管理</a>
-                    </div>
+          <!-- 会議室フィルタードロップダウン -->
+          <select class="filter-select"
+                  id="roomFilterSelect"
+                  data-date="{{ target_date|date:'Y-m-d' }}"
+                  onchange="location.href='?date='+this.dataset.date+'&filter='+this.value">
+            <option value="all" {% if filter_value == 'all' %}selected{% endif %}>全会議室</option>
+            {% for dept in departments %}
+              <option value="{{ dept.id }}"
+                      {% if filter_value == dept.id|stringformat:'s' %}selected{% endif %}>{{ dept.name }}</option>
+            {% endfor %}
+          </select>
+          <button class="dots-btn" onclick="toggleNavMenu(event)">•••</button>
+          <div class="nav-dropdown" id="navMenu">
+            <a href="{% url 'rooms:room_list' %}">会議室一覧</a>
+            <a href="{% url 'my_reservations' %}">自分の予約</a>
+            {% if request.user.is_staff %}
+              <div class="nav-submenu-wrapper">
+                <button class="nav-submenu-trigger" onclick="toggleAdminSubmenu(event)">管理メニュー •••</button>
+                <div class="nav-submenu" id="adminSubmenu">
+                  <a href="{% url 'user_admin_list' %}">ユーザー管理</a>
+                  <a href="{% url 'room_admin_list' %}">会議室マスタ管理</a>
+                  <a href="{% url 'all_reservation_list' %}">全予約管理</a>
                 </div>
-                {% endif %}
-                <a href="{% url 'password_change' %}">パスワード変更</a>
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="logout-btn">ログアウト</button>
-                </form>
-            </div>
+              </div>
+            {% endif %}
+            <a href="{% url 'password_change' %}">パスワード変更</a>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="logout-btn">ログアウト</button>
+            </form>
+          </div>
         </div>
-    </div>
-
-    <!-- カレンダーグリッド -->
-    <div class="calendar-scroll">
+      </div>
+      <!-- カレンダーグリッド -->
+      <div class="calendar-scroll">
         <table class="calendar-table">
-            <thead>
-                <tr>
-                    <th class="time-header"></th>
-                    {% for room in rooms %}
-                    <th class="room-header-cell">
-                        <div class="room-card">{{ room.name }}</div>
-                        <div class="room-building">{{ room.building|default:"―" }}</div>
-                    </th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in grid %}
-                <tr>
-                    <td class="time-label">
-                        {% if row.slot.minute == 0 %}{{ row.slot|time:"G:i" }}{% endif %}
+          <thead>
+            <tr>
+              <th class="time-header"></th>
+              {% for room in rooms %}
+                <th class="room-header-cell">
+                  <div class="room-card">{{ room.name }}</div>
+                  <div class="room-building">{{ room.building|default:"―" }}</div>
+                </th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in grid %}
+              <tr>
+                <td class="time-label">
+                  {% if row.slot.minute == 0 %}{{ row.slot|time:"G:i" }}{% endif %}
+                </td>
+                {% for cell in row.cells %}
+                  {% if not cell.skip %}
+                    <td class="calendar-cell"
+                        {% if cell.span > 1 %}rowspan="{{ cell.span }}"{% endif %}>
+                      {% if cell.reservation %}
+                        <div class="reservation-card"
+                             data-reservation-id="{{ cell.reservation.id }}"
+                             data-title="{{ cell.reservation.title }}"
+                             data-reserved-by="{{ cell.reservation.reserved_by }}"
+                             data-start="{{ cell.reservation.start_at|time:'H:i' }}"
+                             data-end="{{ cell.reservation.end_at|time:'H:i' }}"
+                             onclick="showReservationModal(this)">
+                          {{ cell.reservation.reserved_by }}｜{{ cell.reservation.title }}
+                        </div>
+                      {% else %}
+                        <div class="empty-cell"
+                             data-url="{% url 'reservation_create' %}?room={{ cell.room.id }}&amp;date={{ target_date|date:'Y-m-d' }}&amp;time={{ row.slot|time:'H:i' }}"
+                             onclick="location.href=this.dataset.url">
+                          <span class="plus-icon">＋予約</span>
+                        </div>
+                      {% endif %}
                     </td>
-                    {% for cell in row.cells %}
-                    {% if not cell.skip %}
-                    <td class="calendar-cell"{% if cell.span > 1 %} rowspan="{{ cell.span }}"{% endif %}>
-                        {% if cell.reservation %}
-                            <div class="reservation-card"
-                                 data-reservation-id="{{ cell.reservation.id }}"
-                                 data-title="{{ cell.reservation.title }}"
-                                 data-reserved-by="{{ cell.reservation.reserved_by }}"
-                                 data-start="{{ cell.reservation.start_at|time:'H:i' }}"
-                                 data-end="{{ cell.reservation.end_at|time:'H:i' }}"
-                                 onclick="showReservationModal(this)">
-                                {{ cell.reservation.reserved_by }}｜{{ cell.reservation.title }}
-                            </div>
-                        {% else %}
-                            <div class="empty-cell"
-                                 data-url="{% url 'reservation_create' %}?room={{ cell.room.id }}&amp;date={{ target_date|date:'Y-m-d' }}&amp;time={{ row.slot|time:'H:i' }}"
-                                 onclick="location.href=this.dataset.url">
-                                <span class="plus-icon">＋予約</span>
-                            </div>
-                        {% endif %}
-                    </td>
-                    {% endif %}
-                    {% endfor %}
-                </tr>
+                  {% endif %}
                 {% endfor %}
-            </tbody>
+              </tr>
+            {% endfor %}
+          </tbody>
         </table>
+      </div>
     </div>
-
-</div>
-
-<!-- 予約詳細モーダル -->
-<div class="modal-overlay" id="reservationModal" onclick="closeModalOnOverlay(event)">
-    <div class="modal-box">
+    <!-- 予約詳細モーダル -->
+    <div class="modal-overlay"
+         id="reservationModal"
+         onclick="closeModalOnOverlay(event)">
+      <div class="modal-box">
         <h5>予約の詳細</h5>
         <dl>
-            <dt>件名</dt>
-            <dd id="modal-title"></dd>
-            <dt>予約者</dt>
-            <dd id="modal-reserved-by"></dd>
-            <dt>時間</dt>
-            <dd id="modal-time"></dd>
+          <dt>件名</dt>
+          <dd id="modal-title">
+          </dd>
+          <dt>予約者</dt>
+          <dd id="modal-reserved-by">
+          </dd>
+          <dt>時間</dt>
+          <dd id="modal-time">
+          </dd>
         </dl>
         <div class="modal-footer">
-            <a id="modal-detail-link" href="#" class="btn btn-primary btn-md">詳細を見る</a>
-            <button type="button" class="btn btn-light btn-md" onclick="closeModal()">閉じる</button>
+          <a id="modal-detail-link" href="#" class="btn btn-primary btn-md">詳細を見る</a>
+          <button type="button" class="btn btn-light btn-md" onclick="closeModal()">閉じる</button>
         </div>
+      </div>
     </div>
-</div>
-
-{% if messages %}
-    {% for message in messages %}
-        <div id="toast" class="toast top-right" style="background-color:#27ae60;">
-            {{ message }}
-        </div>
-    {% endfor %}
-{% endif %}
-
-<script src="{% static 'js/common.js' %}"></script>
-<script src="{% static 'js/calendar.js' %}"></script>
-
-</body>
+    {% if messages %}
+      {% for message in messages %}
+        <div id="toast" class="toast top-right" style="background-color:#27ae60;">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    <script src="{% static 'js/common.js' %}"></script>
+    <script src="{% static 'js/calendar.js' %}"></script>
+  </body>
 </html>

@@ -9,15 +9,14 @@ class RoomListView(LoginRequiredMixin, ListView):
     """F-07: 会議室一覧表示 / F-08: 会議室絞り込み検索 (S-04)"""
 
     model = Room
-    template_name = 'rooms/room_list.html'
-    context_object_name = 'rooms'
+    template_name = "rooms/room_list.html"
+    context_object_name = "rooms"
 
     def get_queryset(self):
         qs = (
-            Room.objects
-            .select_related('building')
-            .prefetch_related('facilities')
-            .order_by('name')
+            Room.objects.select_related("building")
+            .prefetch_related("facilities")
+            .order_by("name")
         )
 
         form = self._get_bound_form()
@@ -25,10 +24,10 @@ class RoomListView(LoginRequiredMixin, ListView):
         # バリデーション通過時のみフィルター適用
         # （不正値はフィルターなし扱い）
         if form.is_valid():
-            capacity = form.cleaned_data.get('capacity')
-            facility_qs = form.cleaned_data.get('facility')
-            building = form.cleaned_data.get('building')
-            floor = form.cleaned_data.get('floor')
+            capacity = form.cleaned_data.get("capacity")
+            facility_qs = form.cleaned_data.get("facility")
+            building = form.cleaned_data.get("building")
+            floor = form.cleaned_data.get("floor")
 
             if capacity:
                 qs = qs.filter(capacity__gte=capacity)
@@ -56,19 +55,21 @@ class RoomListView(LoginRequiredMixin, ListView):
         if self.request.GET:
             params = self.request.GET
             if (
-                params.get('capacity') or
-                params.getlist('facility') or
-                params.get('building') or
-                params.get('floor')
+                params.get("capacity")
+                or params.getlist("facility")
+                or params.get("building")
+                or params.get("floor")
             ):
                 is_filtered = True
 
-        context.update({
-            'form': form,
-            'facilities': Facility.objects.all().order_by('name'),
-            'buildings': Building.objects.all().order_by('name'),
-            'is_filtered': is_filtered,
-        })
+        context.update(
+            {
+                "form": form,
+                "facilities": Facility.objects.all().order_by("name"),
+                "buildings": Building.objects.all().order_by("name"),
+                "is_filtered": is_filtered,
+            }
+        )
         return context
 
     def _get_bound_form(self):

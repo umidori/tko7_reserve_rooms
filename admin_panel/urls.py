@@ -16,23 +16,35 @@ from .views import (
 
 urlpatterns = [
     # F-14: ユーザー一覧
-    path('users/', UserListView.as_view(), name='user_admin_list'),
+    path("users/", UserListView.as_view(), name="user_admin_list"),
     # F-15: ユーザー追加・編集
-    path('users/create/', UserCreateView.as_view(), name='user_create'),
-    path('users/<int:pk>/edit/', UserUpdateView.as_view(), name='user_edit'),
+    path("users/create/", UserCreateView.as_view(), name="user_create"),
+    path("users/<int:pk>/edit/", UserUpdateView.as_view(), name="user_edit"),
     # F-16: 有効/無効トグル
-    path('users/<int:pk>/toggle-active/', UserToggleActiveView.as_view(), name='user_toggle_active'),
+    path(
+        "users/<int:pk>/toggle-active/",
+        UserToggleActiveView.as_view(),
+        name="user_toggle_active",
+    ),
     # F-17: CSVインポート
-    path('users/csv-import/', CSVImportView.as_view(), name='csv_import'),
-    path('users/csv-import/execute/', CSVImportExecuteView.as_view(), name='csv_import_execute'),
-
+    path("users/csv-import/", CSVImportView.as_view(), name="csv_import"),
+    path(
+        "users/csv-import/execute/",
+        CSVImportExecuteView.as_view(),
+        name="csv_import_execute",
+    ),
     # F-18〜F-20: 会議室マスタ管理
-    path('rooms/', RoomAdminListView.as_view(), name='room_admin_list'),
-    path('rooms/create/', RoomCreateView.as_view(), name='room_create'),
-    path('rooms/<int:pk>/edit/', RoomUpdateView.as_view(), name='room_edit'),
-    path('rooms/<int:pk>/delete/', RoomDeleteView.as_view(), name='room_delete'),
-    path('rooms/<int:pk>/toggle-active/', RoomToggleActiveView.as_view(), name='room_toggle_active'),
-
+    path("rooms/", RoomAdminListView.as_view(), name="room_admin_list"),
+    path("rooms/create/", RoomCreateView.as_view(), name="room_create"),
+    path("rooms/<int:pk>/edit/", RoomUpdateView.as_view(), name="room_edit"),
+    path("rooms/<int:pk>/delete/", RoomDeleteView.as_view(), name="room_delete"),
+    path(
+        "rooms/<int:pk>/toggle-active/",
+        RoomToggleActiveView.as_view(),
+        name="room_toggle_active",
+    ),
     # F-21: 全予約一覧・管理
-    path('reservations/', AllReservationListView.as_view(), name='all_reservation_list'),
+    path(
+        "reservations/", AllReservationListView.as_view(), name="all_reservation_list"
+    ),
 ]

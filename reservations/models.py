@@ -4,18 +4,20 @@ from django.utils import timezone
 
 User = settings.AUTH_USER_MODEL
 
+
 # ──────────────────────────────────────────────
 # T-02 建物マスタ
 # ──────────────────────────────────────────────
 class Building(models.Model):
     """建物マスタ (T-02)"""
-    name = models.CharField(max_length=100, unique=True, verbose_name='建物名称')
-    created_at = models.DateTimeField(default=timezone.now, verbose_name='作成日時')
+
+    name = models.CharField(max_length=100, unique=True, verbose_name="建物名称")
+    created_at = models.DateTimeField(default=timezone.now, verbose_name="作成日時")
 
     class Meta:
-        db_table = 'buildings'
-        verbose_name = '建物'
-        verbose_name_plural = '建物'
+        db_table = "buildings"
+        verbose_name = "建物"
+        verbose_name_plural = "建物"
 
     def __str__(self) -> str:
         return self.name
@@ -26,13 +28,14 @@ class Building(models.Model):
 # ──────────────────────────────────────────────
 class Facility(models.Model):
     """設備マスタ (T-04)"""
-    name = models.CharField(max_length=100, unique=True, verbose_name='設備名称')
-    created_at = models.DateTimeField(default=timezone.now, verbose_name='作成日時')
+
+    name = models.CharField(max_length=100, unique=True, verbose_name="設備名称")
+    created_at = models.DateTimeField(default=timezone.now, verbose_name="作成日時")
 
     class Meta:
-        db_table = 'facilities'
-        verbose_name = '設備'
-        verbose_name_plural = '設備'
+        db_table = "facilities"
+        verbose_name = "設備"
+        verbose_name_plural = "設備"
 
     def __str__(self) -> str:
         return self.name
@@ -43,40 +46,41 @@ class Facility(models.Model):
 # ──────────────────────────────────────────────
 class Room(models.Model):
     """会議室マスタ (T-05)"""
-    name = models.CharField(max_length=100, unique=True, verbose_name='室名')
-    capacity = models.PositiveIntegerField(verbose_name='収容人数')
+
+    name = models.CharField(max_length=100, unique=True, verbose_name="室名")
+    capacity = models.PositiveIntegerField(verbose_name="収容人数")
     building = models.ForeignKey(
         Building,
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        db_column='building_id',
-        related_name='rooms',
-        verbose_name='建物',
+        db_column="building_id",
+        related_name="rooms",
+        verbose_name="建物",
     )
-    floor = models.IntegerField(null=True, blank=True, verbose_name='階数')
-    is_active = models.BooleanField(default=True, verbose_name='利用可能')
+    floor = models.IntegerField(null=True, blank=True, verbose_name="階数")
+    is_active = models.BooleanField(default=True, verbose_name="利用可能")
 
     # T-06 room_facilities を経由した設備との M2N
     facilities = models.ManyToManyField(
         Facility,
-        through='RoomFacility',
+        through="RoomFacility",
         blank=True,
-        verbose_name='設備',
+        verbose_name="設備",
     )
 
     # T-07 department_rooms を経由した所属との M2N
     departments = models.ManyToManyField(
-        'accounts.Department',
-        through='DepartmentRoom',
+        "accounts.Department",
+        through="DepartmentRoom",
         blank=True,
-        verbose_name='所属別表示設定',
+        verbose_name="所属別表示設定",
     )
 
     class Meta:
-        db_table = 'rooms'
-        verbose_name = '会議室'
-        verbose_name_plural = '会議室'
+        db_table = "rooms"
+        verbose_name = "会議室"
+        verbose_name_plural = "会議室"
 
     def __str__(self) -> str:
         return self.name
@@ -89,27 +93,28 @@ class RoomFacility(models.Model):
     """会議室と設備の M:N 中間テーブル (T-06)
     room 削除時は CASCADE で連鎖削除される。
     """
+
     room = models.ForeignKey(
         Room,
         on_delete=models.CASCADE,
-        db_column='room_id',
-        verbose_name='会議室',
+        db_column="room_id",
+        verbose_name="会議室",
     )
     facility = models.ForeignKey(
         Facility,
         on_delete=models.CASCADE,
-        db_column='facility_id',
-        verbose_name='設備',
+        db_column="facility_id",
+        verbose_name="設備",
     )
 
     class Meta:
-        db_table = 'room_facilities'
-        unique_together = [('room', 'facility')]
-        verbose_name = '会議室設備'
-        verbose_name_plural = '会議室設備'
+        db_table = "room_facilities"
+        unique_together = [("room", "facility")]
+        verbose_name = "会議室設備"
+        verbose_name_plural = "会議室設備"
 
     def __str__(self) -> str:
-        return f'{self.room} — {self.facility}'
+        return f"{self.room} — {self.facility}"
 
 
 # ──────────────────────────────────────────────
@@ -119,27 +124,28 @@ class DepartmentRoom(models.Model):
     """所属ごとのカレンダー初期表示対象会議室マッピング (T-07)
     room 削除時は CASCADE で連鎖削除される。
     """
+
     department = models.ForeignKey(
-        'accounts.Department',
+        "accounts.Department",
         on_delete=models.CASCADE,
-        db_column='department_id',
-        verbose_name='所属',
+        db_column="department_id",
+        verbose_name="所属",
     )
     room = models.ForeignKey(
         Room,
         on_delete=models.CASCADE,
-        db_column='room_id',
-        verbose_name='会議室',
+        db_column="room_id",
+        verbose_name="会議室",
     )
 
     class Meta:
-        db_table = 'department_rooms'
-        unique_together = [('department', 'room')]
-        verbose_name = '所属別会議室'
-        verbose_name_plural = '所属別会議室'
+        db_table = "department_rooms"
+        unique_together = [("department", "room")]
+        verbose_name = "所属別会議室"
+        verbose_name_plural = "所属別会議室"
 
     def __str__(self) -> str:
-        return f'{self.department} — {self.room}'
+        return f"{self.department} — {self.room}"
 
 
 # ──────────────────────────────────────────────
@@ -149,8 +155,8 @@ class Reservation(models.Model):
     room = models.ForeignKey(
         Room,
         on_delete=models.CASCADE,
-        related_name='reservations',
-        verbose_name='会議室',
+        related_name="reservations",
+        verbose_name="会議室",
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     reserved_by = models.CharField(max_length=100)

@@ -3,6 +3,7 @@ F-02: ログアウト (LogoutView) の単体テスト
 対象ビュー : django.contrib.auth.views.LogoutView
 URL name  : logout  →  /accounts/logout/
 """
+
 from django.test import TestCase
 from django.urls import reverse
 
@@ -13,18 +14,18 @@ class TestF02Logout(TestCase):
     """F-02 ログアウト機能のテスト"""
 
     def setUp(self):
-        self.logout_url = reverse('logout')
-        self.login_url = '/accounts/login/'
-        self.calendar_url = '/calendar/'
+        self.logout_url = reverse("logout")
+        self.login_url = "/accounts/login/"
+        self.calendar_url = "/calendar/"
         self.user = User.objects.create_user(
-            login_id='test@example.com',
-            name='テストユーザー',
-            password='TestPass123',
+            login_id="test@example.com",
+            name="テストユーザー",
+            password="TestPass123",
         )
 
     def _login(self):
         """テストヘルパー: ユーザーをログイン状態にする"""
-        self.client.login(username='test@example.com', password='TestPass123')
+        self.client.login(username="test@example.com", password="TestPass123")
 
     # ──────────────────────────────────────────────
     # 正常系
@@ -43,5 +44,5 @@ class TestF02Logout(TestCase):
         response = self.client.get(self.calendar_url)
         self.assertRedirects(
             response,
-            f'{self.login_url}?next={self.calendar_url}',
+            f"{self.login_url}?next={self.calendar_url}",
         )

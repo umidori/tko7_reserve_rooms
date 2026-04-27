@@ -1,160 +1,132 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>予約作成</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/common.css' %}">
     <link rel="stylesheet" href="{% static 'css/reservations.css' %}">
-</head>
-<body>
-
-<div class="logo between">
-    <div class="header-logo">
-        <a href="/"><img src="{% static 'image/bold-logo.webp' %}" alt="logo"></a>
+  </head>
+  <body>
+    <div class="logo between">
+      <div class="header-logo">
+        <a href="/">
+          <img src="{% static 'image/bold-logo.webp' %}" alt="logo">
+        </a>
         <span>社内会議室予約システム：予約作成</span>
-    </div>
-    <div class="top-links">
+      </div>
+      <div class="top-links">
         <a href="{% url 'calendar' %}">日次カレンダーに戻る</a>
         <span class="sep">｜</span>
         <a href="{% url 'my_reservations' %}">自分の予約</a>
         <span class="sep">｜</span>
         <form method="post" action="{% url 'logout' %}" class="logout-form">
-            {% csrf_token %}
-            <button type="submit" class="logout-btn">ログアウト</button>
+          {% csrf_token %}
+          <button type="submit" class="logout-btn">ログアウト</button>
         </form>
-    </div>
-</div>
-
-<div class="page">
-
-  <div class="section-title main-title">新規予約</div>
-
-  <div class="selected-room-box">
-    <div class="selected-room-label">選択中の会議室</div>
-
-    <div class="selected-room-info" id="selectedRoomInfo">
-      <div class="room-main" id="selectedRoomName">
-        {% if selected_room %}{{ selected_room.name }}{% endif %}
-      </div>
-
-      <div class="selected-room-capacity" id="selectedRoomCapacity">
-        {% if selected_room %}収容人数：{{ selected_room.capacity }}名{% endif %}
-      </div>
-
-      <div class="selected-room-building" id="selectedRoomBuilding">
-        {% if selected_room and selected_room.building %}建物：{{ selected_room.building }}{% endif %}
-      </div>
-
-      <div class="selected-room-floor" id="selectedRoomFloor">
-        {% if selected_room and selected_room.floor %}{{ selected_room.floor }}階{% endif %}
       </div>
     </div>
-  </div>
-
-  <form method="post" novalidate>
-    {% csrf_token %}
-
-    <div class="section">
-      <div class="section-title">予約基本情報</div>
-      <div class="section-body">
-
-        <div class="form-row-errorable">
-          <div class="label">会議室</div>
-          <div class="field-block short">
-            <select name="room" id="roomSelect" class="form-select">
-              <option value="">---------</option>
-              {% for room in form.fields.room.queryset %}
-                <option value="{{ room.id }}"
-                  data-name="{{ room.name }}"
-                  data-capacity="{{ room.capacity }}"
-                  data-building="{{ room.building|default:'-' }}"
-                  data-floor="{% if room.floor %}{{ room.floor }}{% endif %}"
-                  {% if form.room.value|stringformat:"s" == room.id|stringformat:"s" %}selected{% endif %}>
-                  {{ room.name }}
-                </option>
-              {% endfor %}
-            </select>
-            <div class="field-error-area">
-              {% for error in form.room.errors %}
-                <div class="field-error">{{ error }}</div>
-              {% endfor %}
+    <div class="page">
+      <div class="section-title main-title">新規予約</div>
+      <div class="selected-room-box">
+        <div class="selected-room-label">選択中の会議室</div>
+        <div class="selected-room-info" id="selectedRoomInfo">
+          <div class="room-main" id="selectedRoomName">
+            {% if selected_room %}{{ selected_room.name }}{% endif %}
+          </div>
+          <div class="selected-room-capacity" id="selectedRoomCapacity">
+            {% if selected_room %}収容人数：{{ selected_room.capacity }}名{% endif %}
+          </div>
+          <div class="selected-room-building" id="selectedRoomBuilding">
+            {% if selected_room and selected_room.building %}建物：{{ selected_room.building }}{% endif %}
+          </div>
+          <div class="selected-room-floor" id="selectedRoomFloor">
+            {% if selected_room and selected_room.floor %}{{ selected_room.floor }}階{% endif %}
+          </div>
+        </div>
+      </div>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="section">
+          <div class="section-title">予約基本情報</div>
+          <div class="section-body">
+            <div class="form-row-errorable">
+              <div class="label">会議室</div>
+              <div class="field-block short">
+                <select name="room" id="roomSelect" class="form-select">
+                  <option value="">---------</option>
+                  {% for room in form.fields.room.queryset %}
+                    <option value="{{ room.id }}"
+                            data-name="{{ room.name }}"
+                            data-capacity="{{ room.capacity }}"
+                            data-building="{{ room.building|default:'-' }}"
+                            data-floor="{% if room.floor %}{{ room.floor }}{% endif %}"
+                            {% if form.room.value|stringformat:"s" == room.id|stringformat:"s" %}selected{% endif %}>
+                      {{ room.name }}
+                    </option>
+                  {% endfor %}
+                </select>
+                <div class="field-error-area">
+                  {% for error in form.room.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                </div>
+              </div>
+            </div>
+            <div class="form-row-errorable">
+              <div class="label">日付</div>
+              <div class="field-block short">
+                {{ form.reserve_date }}
+                <div class="field-error-area">
+                  {% for error in form.reserve_date.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                </div>
+              </div>
+            </div>
+            <div class="form-row double">
+              <div class="pair">
+                <div class="label">開始時刻</div>
+                <div class="input short">{{ form.start_time }}</div>
+              </div>
+              <div class="pair">
+                <div class="label">終了時刻</div>
+                <div class="input short">{{ form.end_time }}</div>
+              </div>
             </div>
           </div>
         </div>
-
-        <div class="form-row-errorable">
-          <div class="label">日付</div>
-          <div class="field-block short">
-            {{ form.reserve_date }}
-            <div class="field-error-area">
-              {% for error in form.reserve_date.errors %}
-                <div class="field-error">{{ error }}</div>
-              {% endfor %}
+        <div class="section">
+          <div class="section-title">予約内容</div>
+          <div class="section-body">
+            <div class="form-row-errorable">
+              <div class="label">件名</div>
+              <div class="field-block wide">
+                {{ form.title }}
+                <div class="field-error-area">
+                  {% for error in form.title.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="label">参加者名</div>
+              <div class="input wide">{{ form.participants }}</div>
+            </div>
+            <div class="form-row">
+              <div class="label">備考</div>
+              <div class="input wide">{{ form.notes }}</div>
             </div>
           </div>
         </div>
-
-        <div class="form-row double">
-          <div class="pair">
-            <div class="label">開始時刻</div>
-            <div class="input short">{{ form.start_time }}</div>
+        {% if form.non_field_errors %}
+          <div id="toast" class="toast center">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
           </div>
-
-          <div class="pair">
-            <div class="label">終了時刻</div>
-            <div class="input short">{{ form.end_time }}</div>
-          </div>
+        {% endif %}
+        <div class="actions">
+          <button type="submit" class="btn btn-primary btn-lg">予約を登録する</button>
+          <a href="{% url 'calendar' %}" class="btn btn-secondary btn-lg">キャンセル</a>
         </div>
-
-      </div>
+      </form>
     </div>
-
-    <div class="section">
-      <div class="section-title">予約内容</div>
-      <div class="section-body">
-
-        <div class="form-row-errorable">
-          <div class="label">件名</div>
-          <div class="field-block wide">
-            {{ form.title }}
-            <div class="field-error-area">
-              {% for error in form.title.errors %}
-                <div class="field-error">{{ error }}</div>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="label">参加者名</div>
-          <div class="input wide">{{ form.participants }}</div>
-        </div>
-
-        <div class="form-row">
-          <div class="label">備考</div>
-          <div class="input wide">{{ form.notes }}</div>
-        </div>
-
-      </div>
-    </div>
-
-    {% if form.non_field_errors %}
-      <div id="toast" class="toast center">
-        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
-      </div>
-    {% endif %}
-
-    <div class="actions">
-      <button type="submit" class="btn btn-primary btn-lg">予約を登録する</button>
-      <a href="{% url 'calendar' %}" class="btn btn-secondary btn-lg">キャンセル</a>
-    </div>
-
-  </form>
-</div>
-
-<script src="{% static 'js/common.js' %}"></script>
-<script src="{% static 'js/reservations.js' %}"></script>
-</body>
+    <script src="{% static 'js/common.js' %}"></script>
+    <script src="{% static 'js/reservations.js' %}"></script>
+  </body>
 </html>

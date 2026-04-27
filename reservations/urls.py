@@ -9,20 +9,15 @@ from .views import (
 )
 
 urlpatterns = [
-    path('', CalendarView.as_view(), name='home'),
-
+    path("", CalendarView.as_view(), name="home"),
     # F-06: my reservations list  (/reservations/my/?tab=upcoming or ?tab=past)
-    path('my/', MyReservationListView.as_view(), name='my_reservations'),
-
+    path("my/", MyReservationListView.as_view(), name="my_reservations"),
     # F-09: reservation create
-    path('create/', ReservationCreateView.as_view(), name='reservation_create'),
-
+    path("create/", ReservationCreateView.as_view(), name="reservation_create"),
     # F-10: reservation detail
-    path('<int:pk>/', ReservationDetailView.as_view(), name='reservation_detail'),
-
+    path("<int:pk>/", ReservationDetailView.as_view(), name="reservation_detail"),
     # F-11: reservation edit
-    path('<int:pk>/edit/', ReservationUpdateView.as_view(), name='reservation_edit'),
-
+    path("<int:pk>/edit/", ReservationUpdateView.as_view(), name="reservation_edit"),
     # F-12: reservation cancel
-    path('<int:pk>/cancel/', reservation_cancel, name='reservation_cancel'),
+    path("<int:pk>/cancel/", reservation_cancel, name="reservation_cancel"),
 ]

@@ -4,7 +4,6 @@
    共通スタイルは common.css を参照
    ===================================================== */
 
-
 /* ===== ページレイアウト ===== */
 .page {
   width: 100%;
@@ -75,10 +74,10 @@
 }
 
 .main-title {
-    background: #0d3f6e;
-    color: #fff;
-    padding: 12px 16px;
-    margin-bottom: 12px;
+  background: #0d3f6e;
+  color: #fff;
+  padding: 12px 16px;
+  margin-bottom: 12px;
 }
 
 /* ===== フォーム ===== */

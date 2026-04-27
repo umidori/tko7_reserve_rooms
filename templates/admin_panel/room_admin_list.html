@@ -1,313 +1,287 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>会議室マスタ管理 | 会議室予約システム</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/common.css' %}">
     <link rel="stylesheet" href="{% static 'css/room_admin.css' %}">
-</head>
-<body>
-
-<!-- ロゴ（「戻る｜ログアウト」を右端に配置） -->
-<div class="logo between">
-    <div class="header-logo">
-        <a href="/"><img src="{% static 'image/bold-logo.webp' %}" alt="logo"></a>
+  </head>
+  <body>
+    <!-- ロゴ（「戻る｜ログアウト」を右端に配置） -->
+    <div class="logo between">
+      <div class="header-logo">
+        <a href="/">
+          <img src="{% static 'image/bold-logo.webp' %}" alt="logo">
+        </a>
         <span>社内会議室予約システム：会議室マスタ管理</span>
-    </div>
-    <div class="top-links">
+      </div>
+      <div class="top-links">
         <a href="/">戻る</a>
         <span class="sep">｜</span>
         <form method="post" action="{% url 'logout' %}" class="logout-form">
-            {% csrf_token %}
-            <button type="submit" class="logout-btn">ログアウト</button>
+          {% csrf_token %}
+          <button type="submit" class="logout-btn">ログアウト</button>
         </form>
+      </div>
     </div>
-</div>
-
-<!-- メインコンテナ -->
-<div class="calendar-container">
-
-    <!-- ツールバー -->
-    <div class="calendar-toolbar">
+    <!-- メインコンテナ -->
+    <div class="calendar-container">
+      <!-- ツールバー -->
+      <div class="calendar-toolbar">
         <div class="toolbar-left">
-            <span class="page-title">会議室マスタ管理</span>
+          <span class="page-title">会議室マスタ管理</span>
         </div>
         <div class="toolbar-right">
-            <button type="button" class="btn btn-primary btn-md" onclick="openRoomModal('create')">
-                ＋ 会議室を追加
-            </button>
+          <button type="button"
+                  class="btn btn-primary btn-md"
+                  onclick="openRoomModal('create')">＋ 会議室を追加</button>
         </div>
-    </div>
-
-    <!-- 会議室一覧テーブル -->
-    <div class="admin-card">
-        <div class="list-header">
-            会議室一覧（{{ rooms|length }}室登録済み）
-        </div>
+      </div>
+      <!-- 会議室一覧テーブル -->
+      <div class="admin-card">
+        <div class="list-header">会議室一覧（{{ rooms|length }}室登録済み）</div>
         <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>会議室名</th>
-                    <th class="center">収容人数</th>
-                    <th>設備</th>
-                    <th>建物／階</th>
-                    <th class="center">利用状況</th>
-                    <th class="center">今後の予約</th>
-                    <th class="center">操作</th>
-                    <th>所属別表示設定</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for room in rooms %}
-                <tr>
-                    <td><strong>{{ room.name }}</strong></td>
-                    <td class="center">{{ room.capacity }}名</td>
-                    <td>
-                        {% for f in room.facilities.all %}
-                            <span class="facility-tag">{{ f.name }}</span>
-                        {% empty %}―{% endfor %}
-                    </td>
-                    <td>
-                        {% if room.building %}{{ room.building.name }}{% endif %}
-                        {% if room.floor %}{{ room.floor }}階{% endif %}
-                        {% if not room.building and not room.floor %}―{% endif %}
-                    </td>
-                    <td class="center">
-                        {% if room.is_active %}
-                            <span class="badge badge-active">利用可</span>
-                        {% else %}
-                            <span class="badge badge-stopped">利用停止</span>
-                        {% endif %}
-                    </td>
-                    <td class="center">
-                        {% if room.future_reservation_count > 0 %}
-                            <span class="badge badge-count">{{ room.future_reservation_count }}件</span>
-                        {% else %}
-                            <span style="color:#bbb;">0件</span>
-                        {% endif %}
-                    </td>
-                    <td class="center">
-                        <div class="action-group">
-
-                            <button type="button"
-                                    class="btn btn-secondary btn-sm"
-                                    onclick="openRoomModal('edit', this)"
-                                    data-room-id="{{ room.pk }}"
-                                    data-name="{{ room.name }}"
-                                    data-capacity="{{ room.capacity }}"
-                                    data-building-id="{{ room.building_id|default:'' }}"
-                                    data-floor="{{ room.floor|default:'' }}"
-                                    data-facility-ids="{{ room.facility_ids }}"
-                                    data-department-ids="{{ room.department_ids }}">
-                                編集
-                            </button>
-
-                            <form method="post"
-                                  action="{% url 'room_toggle_active' room.pk %}"
-                                  class="logout-form">
-                                {% csrf_token %}
-                                {% if room.is_active %}
-                                    <button type="submit"
-                                            class="btn btn-outline-danger btn-sm"
-                                            onclick="return confirm('「{{ room.name }}」を利用停止にしますか？\n既存の予約はそのまま残ります。')">
-                                        利用停止
-                                    </button>
-                                {% else %}
-                                    <button type="submit"
-                                            class="btn btn-outline-primary btn-sm"
-                                            onclick="return confirm('「{{ room.name }}」の利用を再開しますか？')">
-                                        再開
-                                    </button>
-                                {% endif %}
-                            </form>
-
-                            <button type="button"
-                                    class="btn btn-outline-danger btn-sm"
-                                    data-room-id="{{ room.pk }}"
-                                    data-room-name="{{ room.name|escapejs }}"
-                                    data-reservation-count="{{ room.future_reservation_count }}"
-                                    data-delete-url="{% url 'room_delete' room.pk %}"
-                                    onclick="openDeleteModal(this)">
-                                削除
-                            </button>
-
-                        </div>
-                    </td>
-                    <td>
-                        {% for dept in room.departments.all %}
-                            <span class="dept-tag">{{ dept.name }}</span>
-                        {% empty %}―{% endfor %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr class="empty-row">
-                    <td colspan="8">会議室が登録されていません</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+          <thead>
+            <tr>
+              <th>会議室名</th>
+              <th class="center">収容人数</th>
+              <th>設備</th>
+              <th>建物／階</th>
+              <th class="center">利用状況</th>
+              <th class="center">今後の予約</th>
+              <th class="center">操作</th>
+              <th>所属別表示設定</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for room in rooms %}
+              <tr>
+                <td>
+                  <strong>{{ room.name }}</strong>
+                </td>
+                <td class="center">{{ room.capacity }}名</td>
+                <td>
+                  {% for f in room.facilities.all %}
+                    <span class="facility-tag">{{ f.name }}</span>
+                  {% empty %}―
+                  {% endfor %}
+                </td>
+                <td>
+                  {% if room.building %}{{ room.building.name }}{% endif %}
+                  {% if room.floor %}{{ room.floor }}階{% endif %}
+                  {% if not room.building and not room.floor %}―{% endif %}
+                </td>
+                <td class="center">
+                  {% if room.is_active %}
+                    <span class="badge badge-active">利用可</span>
+                  {% else %}
+                    <span class="badge badge-stopped">利用停止</span>
+                  {% endif %}
+                </td>
+                <td class="center">
+                  {% if room.future_reservation_count > 0 %}
+                    <span class="badge badge-count">{{ room.future_reservation_count }}件</span>
+                  {% else %}
+                    <span style="color:#bbb;">0件</span>
+                  {% endif %}
+                </td>
+                <td class="center">
+                  <div class="action-group">
+                    <button type="button"
+                            class="btn btn-secondary btn-sm"
+                            onclick="openRoomModal('edit', this)"
+                            data-room-id="{{ room.pk }}"
+                            data-name="{{ room.name }}"
+                            data-capacity="{{ room.capacity }}"
+                            data-building-id="{{ room.building_id|default:'' }}"
+                            data-floor="{{ room.floor|default:'' }}"
+                            data-facility-ids="{{ room.facility_ids }}"
+                            data-department-ids="{{ room.department_ids }}">編集</button>
+                    <form method="post"
+                          action="{% url 'room_toggle_active' room.pk %}"
+                          class="logout-form">
+                      {% csrf_token %}
+                      {% if room.is_active %}
+                        <button type="submit"
+                                class="btn btn-outline-danger btn-sm"
+                                onclick="return confirm('「{{ room.name }}」を利用停止にしますか？\n既存の予約はそのまま残ります。')">利用停止</button>
+                      {% else %}
+                        <button type="submit"
+                                class="btn btn-outline-primary btn-sm"
+                                onclick="return confirm('「{{ room.name }}」の利用を再開しますか？')">再開</button>
+                      {% endif %}
+                    </form>
+                    <button type="button"
+                            class="btn btn-outline-danger btn-sm"
+                            data-room-id="{{ room.pk }}"
+                            data-room-name="{{ room.name|escapejs }}"
+                            data-reservation-count="{{ room.future_reservation_count }}"
+                            data-delete-url="{% url 'room_delete' room.pk %}"
+                            onclick="openDeleteModal(this)">削除</button>
+                  </div>
+                </td>
+                <td>
+                  {% for dept in room.departments.all %}
+                    <span class="dept-tag">{{ dept.name }}</span>
+                  {% empty %}―
+                  {% endfor %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr class="empty-row">
+                <td colspan="8">会議室が登録されていません</td>
+              </tr>
+            {% endfor %}
+          </tbody>
         </table>
+      </div>
     </div>
-
-</div><!-- /.calendar-container -->
-
-
-<!-- ===================================================
+    <!-- /.calendar-container -->
+    <!-- ===================================================
      会議室追加・編集モーダル
      ==================================================== -->
-<div class="modal-overlay {% if modal_open %}open{% endif %}"
-     id="roomFormModal"
-     onclick="closeRoomModalOnOverlay(event)">
-    <div class="modal-box modal-box--form">
-
+    <div class="modal-overlay {% if modal_open %}open{% endif %}"
+         id="roomFormModal"
+         onclick="closeRoomModalOnOverlay(event)">
+      <div class="modal-box modal-box--form">
         <h5 id="roomFormTitle">
-            {% if modal_mode == 'edit' %}会議室を編集{% else %}会議室を追加{% endif %}
+          {% if modal_mode == 'edit' %}
+            会議室を編集
+          {% else %}
+            会議室を追加
+          {% endif %}
         </h5>
-
         <form id="roomForm"
               method="post"
               action="{% if form_action_url %}{{ form_action_url }}{% else %}{% url 'room_create' %}{% endif %}"
               novalidate>
-            {% csrf_token %}
-
-            {% if form.non_field_errors %}
+          {% csrf_token %}
+          {% if form.non_field_errors %}
             <div class="alert-danger" style="margin-bottom:12px;">
-                {% for error in form.non_field_errors %}
-                    <p style="margin:0;">{{ error }}</p>
-                {% endfor %}
+              {% for error in form.non_field_errors %}<p style="margin:0;">{{ error }}</p>{% endfor %}
             </div>
-            {% endif %}
-
-            <table class="form-table">
-                <tr>
-                    <th>室名 <span class="required">*</span></th>
-                    <td>
-                        {{ form.name }}
-                        {% for e in form.name.errors %}
-                            <div class="error-text">{{ e }}</div>
-                        {% endfor %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>収容人数 <span class="required">*</span></th>
-                    <td>
-                        <div style="display:flex;align-items:center;gap:6px;max-width:160px;">
-                            {{ form.capacity }}
-                            <span style="font-size:14px;color:#555;white-space:nowrap;">名</span>
-                        </div>
-                        {% for e in form.capacity.errors %}
-                            <div class="error-text">{{ e }}</div>
-                        {% endfor %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>設備</th>
-                    <td>
-                        <div class="check-group">
-                            {% for facility in facilities %}
-                            <label class="check-inline">
-                                <input type="checkbox"
-                                       name="facilities"
-                                       value="{{ facility.pk }}"
-                                       {% if facility.pk in selected_facility_ids %}checked{% endif %}>
-                                {{ facility.name }}
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <th>建物</th>
-                    <td>
-                        {{ form.building }}
-                        {% for e in form.building.errors %}
-                            <div class="error-text">{{ e }}</div>
-                        {% endfor %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>階数</th>
-                    <td>
-                        {{ form.floor }}
-                        {% for e in form.floor.errors %}
-                            <div class="error-text">{{ e }}</div>
-                        {% endfor %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>所属別表示設定</th>
-                    <td>
-                        <div class="check-group">
-                            {% for dept in departments %}
-                            <label class="check-inline">
-                                <input type="checkbox"
-                                       name="departments"
-                                       value="{{ dept.pk }}"
-                                       {% if dept.pk in selected_department_ids %}checked{% endif %}>
-                                {{ dept.name }}
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </td>
-                </tr>
-            </table>
-
-            <div class="modal-footer" style="margin-top:20px;">
-                <button type="button" class="btn btn-light btn-md" onclick="closeRoomModal()">キャンセル</button>
-                <button type="submit" class="btn btn-primary btn-md">保存する</button>
-            </div>
-
+          {% endif %}
+          <table class="form-table">
+            <tr>
+              <th>
+                室名 <span class="required">*</span>
+              </th>
+              <td>
+                {{ form.name }}
+                {% for e in form.name.errors %}<div class="error-text">{{ e }}</div>{% endfor %}
+              </td>
+            </tr>
+            <tr>
+              <th>
+                収容人数 <span class="required">*</span>
+              </th>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px;max-width:160px;">
+                  {{ form.capacity }}
+                  <span style="font-size:14px;color:#555;white-space:nowrap;">名</span>
+                </div>
+                {% for e in form.capacity.errors %}<div class="error-text">{{ e }}</div>{% endfor %}
+              </td>
+            </tr>
+            <tr>
+              <th>設備</th>
+              <td>
+                <div class="check-group">
+                  {% for facility in facilities %}
+                    <label class="check-inline">
+                      <input type="checkbox"
+                             name="facilities"
+                             value="{{ facility.pk }}"
+                             {% if facility.pk in selected_facility_ids %}checked{% endif %}>
+                      {{ facility.name }}
+                    </label>
+                  {% endfor %}
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th>建物</th>
+              <td>
+                {{ form.building }}
+                {% for e in form.building.errors %}<div class="error-text">{{ e }}</div>{% endfor %}
+              </td>
+            </tr>
+            <tr>
+              <th>階数</th>
+              <td>
+                {{ form.floor }}
+                {% for e in form.floor.errors %}<div class="error-text">{{ e }}</div>{% endfor %}
+              </td>
+            </tr>
+            <tr>
+              <th>所属別表示設定</th>
+              <td>
+                <div class="check-group">
+                  {% for dept in departments %}
+                    <label class="check-inline">
+                      <input type="checkbox"
+                             name="departments"
+                             value="{{ dept.pk }}"
+                             {% if dept.pk in selected_department_ids %}checked{% endif %}>
+                      {{ dept.name }}
+                    </label>
+                  {% endfor %}
+                </div>
+              </td>
+            </tr>
+          </table>
+          <div class="modal-footer" style="margin-top:20px;">
+            <button type="button" class="btn btn-light btn-md" onclick="closeRoomModal()">キャンセル</button>
+            <button type="submit" class="btn btn-primary btn-md">保存する</button>
+          </div>
         </form>
+      </div>
     </div>
-</div>
-
-
-<!-- ===================================================
+    <!-- ===================================================
      会議室削除確認モーダル
      ==================================================== -->
-<div class="modal-overlay" id="deleteModal" onclick="closeModalOnOverlay(event)">
-    <div class="modal-box">
-
+    <div class="modal-overlay"
+         id="deleteModal"
+         onclick="closeModalOnOverlay(event)">
+      <div class="modal-box">
         <div id="deleteStep1">
-            <h5>会議室の削除</h5>
-            <p>以下の会議室を削除しますか？</p>
-            <p class="modal-room-name" id="modalRoomName"></p>
-            <div id="reservationWarning" class="modal-warning" style="display:none;">
-                <span id="reservationCount"></span>件の予約が存在します。<br>
-                削除すると<strong>予約データも消えます。</strong>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light btn-md" onclick="closeDeleteModal()">キャンセル</button>
-                <button type="button" class="btn btn-danger btn-md" id="proceedToStep2">削除する</button>
-            </div>
+          <h5>会議室の削除</h5>
+          <p>以下の会議室を削除しますか？</p>
+          <p class="modal-room-name" id="modalRoomName"></p>
+          <div id="reservationWarning" class="modal-warning" style="display:none;">
+            <span id="reservationCount"></span>件の予約が存在します。
+            <br>
+            削除すると<strong>予約データも消えます。</strong>
+          </div>
+          <div class="modal-footer">
+            <button type="button"
+                    class="btn btn-light btn-md"
+                    onclick="closeDeleteModal()">キャンセル</button>
+            <button type="button" class="btn btn-danger btn-md" id="proceedToStep2">削除する</button>
+          </div>
         </div>
-
         <div id="deleteStep2" style="display:none;">
-            <h5>最終確認</h5>
-            <p style="text-align:center;margin-top:16px;">本当に削除しますか？</p>
-            <p class="modal-room-name" id="modalRoomName2" style="color:#e74c3c;"></p>
-            <p style="text-align:center;color:#aaa;font-size:13px;">この操作は取り消せません。</p>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light btn-md" id="backToStep1">戻る</button>
-                <form id="deleteForm" method="post" class="logout-form">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-md">削除を実行する</button>
-                </form>
-            </div>
+          <h5>最終確認</h5>
+          <p style="text-align:center;margin-top:16px;">本当に削除しますか？</p>
+          <p class="modal-room-name" id="modalRoomName2" style="color:#e74c3c;"></p>
+          <p style="text-align:center;color:#aaa;font-size:13px;">この操作は取り消せません。</p>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light btn-md" id="backToStep1">戻る</button>
+            <form id="deleteForm" method="post" class="logout-form">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-md">削除を実行する</button>
+            </form>
+          </div>
         </div>
-
+      </div>
     </div>
-</div>
-
-
-<!-- JS に渡す URL 定数 -->
-<div id="js-urls"
-     data-create-url="{% url 'room_create' %}"
-     data-edit-url-template="{% url 'room_edit' pk=0 %}"
-     style="display:none;"></div>
-
-<script src="{% static 'js/room_admin.js' %}"></script>
-
-</body>
+    <!-- JS に渡す URL 定数 -->
+    <div id="js-urls"
+         data-create-url="{% url 'room_create' %}"
+         data-edit-url-template="{% url 'room_edit' pk=0 %}"
+         style="display:none"></div>
+    <script src="{% static 'js/room_admin.js' %}"></script>
+  </body>
 </html>

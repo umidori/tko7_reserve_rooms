@@ -11,6 +11,7 @@ URL name  : reservation_cancel  ->  /reservations/<pk>/cancel/
   - 成功後はカレンダー画面へリダイレクト
   - 他ユーザーがキャンセルしようとするとカレンダーへリダイレクト（更新はしない）
 """
+
 from datetime import timedelta
 
 from django.test import TestCase
@@ -26,28 +27,28 @@ class TestF12ReservationCancel(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(
-            login_id='test@example.com',
-            name='テストユーザー',
-            password='TestPass123',
+            login_id="test@example.com",
+            name="テストユーザー",
+            password="TestPass123",
         )
         self.other_user = User.objects.create_user(
-            login_id='other@example.com',
-            name='他のユーザー',
-            password='TestPass123',
+            login_id="other@example.com",
+            name="他のユーザー",
+            password="TestPass123",
         )
-        self.room = Room.objects.create(name='会議室A', capacity=10, is_active=True)
+        self.room = Room.objects.create(name="会議室A", capacity=10, is_active=True)
         now = timezone.now()
         self.reservation = Reservation.objects.create(
             room=self.room,
             user=self.user,
-            reserved_by='テストユーザー',
-            title='テスト会議',
+            reserved_by="テストユーザー",
+            title="テスト会議",
             start_at=now + timedelta(days=1),
             end_at=now + timedelta(days=1, hours=1),
             is_cancelled=False,
         )
-        self.url = reverse('reservation_cancel', kwargs={'pk': self.reservation.pk})
-        self.client.login(username='test@example.com', password='TestPass123')
+        self.url = reverse("reservation_cancel", kwargs={"pk": self.reservation.pk})
+        self.client.login(username="test@example.com", password="TestPass123")
 
     # ------------------------------------------------------------------ 正常系
 
@@ -60,22 +61,22 @@ class TestF12ReservationCancel(TestCase):
     def test_cancel_redirects_to_calendar(self):
         """正常系: キャンセル成功後 -> カレンダー画面へリダイレクトされること"""
         response = self.client.post(self.url)
-        self.assertRedirects(response, reverse('calendar'))
+        self.assertRedirects(response, reverse("calendar"))
 
     # ------------------------------------------------------------------ 異常系
 
     def test_cancel_by_non_owner_does_not_cancel(self):
         """異常系: 他のユーザーがキャンセルしようとしても is_cancelled が変化しないこと"""
-        self.client.login(username='other@example.com', password='TestPass123')
+        self.client.login(username="other@example.com", password="TestPass123")
         self.client.post(self.url)
         self.reservation.refresh_from_db()
         self.assertFalse(self.reservation.is_cancelled)
 
     def test_cancel_by_non_owner_redirects_to_calendar(self):
         """異常系: 他のユーザーのキャンセル試行 -> カレンダーへリダイレクト（403ではなく）"""
-        self.client.login(username='other@example.com', password='TestPass123')
+        self.client.login(username="other@example.com", password="TestPass123")
         response = self.client.post(self.url)
-        self.assertRedirects(response, reverse('calendar'))
+        self.assertRedirects(response, reverse("calendar"))
 
     def test_get_method_not_allowed(self):
         """異常系: GET リクエスト -> 405 Method Not Allowed が返ること"""
@@ -88,11 +89,11 @@ class TestF12ReservationCancel(TestCase):
         response = self.client.post(self.url)
         self.assertRedirects(
             response,
-            '/accounts/login/?next={}'.format(self.url),
+            "/accounts/login/?next={}".format(self.url),
         )
 
     def test_nonexistent_reservation_returns_404(self):
         """異常系: 存在しない ID にキャンセル POST -> 404 が返ること"""
-        url = reverse('reservation_cancel', kwargs={'pk': 9999})
+        url = reverse("reservation_cancel", kwargs={"pk": 9999})
         response = self.client.post(url)
         self.assertEqual(response.status_code, 404)

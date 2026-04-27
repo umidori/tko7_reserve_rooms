@@ -4,136 +4,142 @@
    ===================================================== */
 
 .search-card {
-    background: #fff;
-    border-radius: 10px;
-    padding: 24px 28px;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .search-card-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: #888;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    margin-bottom: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
 }
 
 .search-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px 32px;
-    align-items: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  align-items: flex-end;
 }
 
 .search-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .search-field label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #666;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
 }
 
 .search-input,
 .search-select {
-    padding: 8px 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: #eef2f7;
-    font-size: 14px;
-    color: #333;
-    box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #eef2f7;
+  font-size: 14px;
+  color: #333;
+  box-sizing: border-box;
 }
 
 .search-input-with-unit {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .search-unit {
-    font-size: 13px;
-    color: #666;
-    white-space: nowrap;
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
 }
 
 .search-check-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
 }
 
 .search-check-group label {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 14px;
-    color: #444;
-    cursor: pointer;
-    font-weight: normal;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  color: #444;
+  cursor: pointer;
+  font-weight: normal;
 }
 
 .search-check-group input[type="checkbox"] {
-    width: 15px;
-    height: 15px;
-    cursor: pointer;
-    flex-shrink: 0;
-    accent-color: #3182CE;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: #3182ce;
 }
 
 .search-btn-group {
-    display: flex;
-    gap: 10px;
+  display: flex;
+  gap: 10px;
 }
 
 .search-summary {
-    font-size: 13px;
-    color: #666;
-    margin-bottom: 12px;
-    padding: 0 2px;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 12px;
+  padding: 0 2px;
 }
 
 .facility-tag {
-    display: inline-block;
-    padding: 2px 8px;
-    margin: 1px 2px;
-    border-radius: 10px;
-    font-size: 12px;
-    background: #e8f4fd;
-    color: #2c6e9b;
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 1px 2px;
+  border-radius: 10px;
+  font-size: 12px;
+  background: #e8f4fd;
+  color: #2c6e9b;
 }
 
 .room-name-link {
-    font-weight: 600;
-    color: #2c7a9b;
-    text-decoration: none;
+  font-weight: 600;
+  color: #2c7a9b;
+  text-decoration: none;
 }
 
 .room-name-link:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .row-inactive td {
-    color: #aaa;
-    background-color: #fafafa;
+  color: #aaa;
+  background-color: #fafafa;
 }
 
 .row-inactive:hover td {
-    background-color: #f5f5f5;
+  background-color: #f5f5f5;
 }
 
 .row-inactive .room-name-link {
-    color: #aaa;
+  color: #aaa;
 }
 
 .row-inactive .room-name-link:hover {
-    color: #888;
+  color: #888;
 }
 
-.badge-active { background-color: #6cc3a0; color: #fff; }
-.badge-stopped { background-color: #e74c3c; color: #fff; }
+.badge-active {
+  background-color: #6cc3a0;
+  color: #fff;
+}
+.badge-stopped {
+  background-color: #e74c3c;
+  color: #fff;
+}

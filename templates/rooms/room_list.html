@@ -1,135 +1,125 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>会議室一覧・検索 | 会議室予約システム</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/common.css' %}">
     <link rel="stylesheet" href="{% static 'css/room_list.css' %}">
-</head>
-<body>
-
-<div class="logo between">
-    <div class="header-logo">
-        <a href="/"><img src="{% static 'image/bold-logo.webp' %}" alt="logo"></a>
+  </head>
+  <body>
+    <div class="logo between">
+      <div class="header-logo">
+        <a href="/">
+          <img src="{% static 'image/bold-logo.webp' %}" alt="logo">
+        </a>
         <span>社内会議室予約システム：会議室一覧・検索</span>
-    </div>
-    <div class="top-links">
+      </div>
+      <div class="top-links">
         <a href="{% url 'calendar' %}">日次カレンダーに戻る</a>
         <span class="sep">｜</span>
         <a href="{% url 'my_reservations' %}">自分の予約</a>
         <span class="sep">｜</span>
         <form method="post" action="{% url 'logout' %}" class="logout-form">
-            {% csrf_token %}
-            <button type="submit" class="logout-btn">ログアウト</button>
+          {% csrf_token %}
+          <button type="submit" class="logout-btn">ログアウト</button>
         </form>
+      </div>
     </div>
-</div>
-
-<div class="calendar-container">
-
-    <div class="search-card">
+    <div class="calendar-container">
+      <div class="search-card">
         <div class="search-card-title">検索条件</div>
         <form method="get" action="{% url 'rooms:room_list' %}">
-            <div class="search-row">
-
-                <div class="search-field">
-                    <label for="id_capacity">収容人数</label>
-                    <div class="search-input-with-unit">
-                        {{ form.capacity }}
-                        <span class="search-unit">名以上</span>
-                    </div>
-                </div>
-
-                <div class="search-field">
-                    <label>設備</label>
-                    <div class="search-check-group">
-                        {% for checkbox in form.facility %}
-                        <label>{{ checkbox.tag }}{{ checkbox.choice_label }}</label>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <div class="search-field">
-                    <label for="id_building">建物</label>
-                    {{ form.building }}
-                </div>
-
-                <div class="search-field">
-                    <label for="id_floor">階数</label>
-                    <div class="search-input-with-unit">
-                        {{ form.floor }}
-                        <span class="search-unit">階</span>
-                    </div>
-                </div>
-
-                <div class="search-field" style="justify-content:flex-end;">
-                    <div class="search-btn-group">
-                        <button type="submit" class="btn btn-dark btn-md">検索</button>
-                        <a href="." class="btn btn-light btn-md">クリア</a>
-                    </div>
-                </div>
-
+          <div class="search-row">
+            <div class="search-field">
+              <label for="id_capacity">収容人数</label>
+              <div class="search-input-with-unit">
+                {{ form.capacity }}
+                <span class="search-unit">名以上</span>
+              </div>
             </div>
+            <div class="search-field">
+              <label>設備</label>
+              <div class="search-check-group">
+                {% for checkbox in form.facility %}<label>{{ checkbox.tag }}{{ checkbox.choice_label }}</label>{% endfor %}
+              </div>
+            </div>
+            <div class="search-field">
+              <label for="id_building">建物</label>
+              {{ form.building }}
+            </div>
+            <div class="search-field">
+              <label for="id_floor">階数</label>
+              <div class="search-input-with-unit">
+                {{ form.floor }}
+                <span class="search-unit">階</span>
+              </div>
+            </div>
+            <div class="search-field" style="justify-content:flex-end;">
+              <div class="search-btn-group">
+                <button type="submit" class="btn btn-dark btn-md">検索</button>
+                <a href="." class="btn btn-light btn-md">クリア</a>
+              </div>
+            </div>
+          </div>
         </form>
-    </div>
-
-    <div class="search-summary">
+      </div>
+      <div class="search-summary">
         {% if rooms %}
-            {% if is_filtered %}
-                {{ rooms|length }}件の会議室が見つかりました
-            {% else %}
-                検索結果 {{ rooms|length }}件
-            {% endif %}
+          {% if is_filtered %}
+            {{ rooms|length }}件の会議室が見つかりました
+          {% else %}
+            検索結果 {{ rooms|length }}件
+          {% endif %}
         {% endif %}
-    </div>
-
-    <div class="admin-card">
+      </div>
+      <div class="admin-card">
         <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>会議室名</th>
-                    <th class="center">収容人数</th>
-                    <th>設備</th>
-                    <th>建物／階</th>
-                    <th class="center">利用状況</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for room in rooms %}
-                <tr class="{% if not room.is_active %}row-inactive{% endif %}">
-                    <td>
-                        <a href="/calendar/?filter=all&amp;room_id={{ room.id }}" class="room-name-link">{{ room.name }}</a>
-                    </td>
-                    <td class="center">{{ room.capacity }}名</td>
-                    <td>
-                        {% for f in room.facilities.all %}
-                            <span class="facility-tag">{{ f.name }}</span>
-                        {% empty %}―{% endfor %}
-                    </td>
-                    <td>
-                        {% if room.building %}{{ room.building.name }}{% endif %}
-                        {% if room.floor %}{{ room.floor }}階{% endif %}
-                        {% if not room.building and not room.floor %}―{% endif %}
-                    </td>
-                    <td class="center">
-                        {% if room.is_active %}
-                            <span class="badge badge-active">利用可</span>
-                        {% else %}
-                            <span class="badge badge-stopped">利用停止中</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr class="empty-row">
-                    <td colspan="5">条件に一致する会議室が見つかりませんでした</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+          <thead>
+            <tr>
+              <th>会議室名</th>
+              <th class="center">収容人数</th>
+              <th>設備</th>
+              <th>建物／階</th>
+              <th class="center">利用状況</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for room in rooms %}
+              <tr class="{% if not room.is_active %}row-inactive{% endif %}">
+                <td>
+                  <a href="/calendar/?filter=all&amp;room_id={{ room.id }}"
+                     class="room-name-link">{{ room.name }}</a>
+                </td>
+                <td class="center">{{ room.capacity }}名</td>
+                <td>
+                  {% for f in room.facilities.all %}
+                    <span class="facility-tag">{{ f.name }}</span>
+                  {% empty %}―
+                  {% endfor %}
+                </td>
+                <td>
+                  {% if room.building %}{{ room.building.name }}{% endif %}
+                  {% if room.floor %}{{ room.floor }}階{% endif %}
+                  {% if not room.building and not room.floor %}―{% endif %}
+                </td>
+                <td class="center">
+                  {% if room.is_active %}
+                    <span class="badge badge-active">利用可</span>
+                  {% else %}
+                    <span class="badge badge-stopped">利用停止中</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr class="empty-row">
+                <td colspan="5">条件に一致する会議室が見つかりませんでした</td>
+              </tr>
+            {% endfor %}
+          </tbody>
         </table>
+      </div>
     </div>
-
-</div>
-</body>
-</h
+  </body>
+</html>
